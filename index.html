@@ -153,9 +153,13 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
     </div>
     <div id="atab-leaders" class="hidden">
       <p>Leaders appear on the Leadership page. Status <b>LEADER</b> marks who leads (red stamp); change anyone's post, photo or status here. Add or remove entries freely.</p>
+      <div class="lrow"><b>CATEGORIES</b> — sections on the Leadership page, top to bottom.
+        <div id="cList"></div>
+        <div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="cNew" placeholder="new category" style="flex:1"><button id="cAdd">+ add</button><button class="dark" id="cSave">save order</button></div>
+      </div>
       <div id="lList"></div>
       <div><button class="primary" id="lAdd">+ add leader</button><button class="dark" id="lSave">save leadership</button></div>
-      <small>Photo: paste an image link, or pick a file (it is shrunk and stored automatically), then save.</small>
+      <small>Photo: paste an image link, or pick a file — GIFs keep moving, stills are shrunk — then save.</small>
     </div>
     <div id="atab-settings" class="hidden">
       <p>Motto, invite and the other-site button.</p>
@@ -208,10 +212,11 @@ const DEFAULTS = {
     updated: "2026-09-27"
   },
   leaders: [
-    { id: "l1", name: "Hyawii", post: "GENERAL SECRETARY", postRu: "ГЕНЕРАЛЬНЫЙ СЕКРЕТАРЬ", rank: "★ ★ ★ SUPREME", bio: "First among equals. Chairs the Central Committee.", img: "", status: "LEADER" },
-    { id: "l2", name: "— vacant —", post: "DEPUTY GENERAL SECRETARY", postRu: "ЗАМЕСТИТЕЛЬ", rank: "★ ★ HIGH COMMAND", bio: "Acts for the General Secretary.", img: "", status: "OFFICIAL" },
-    { id: "l3", name: "— vacant —", post: "PREMIER", postRu: "ПРЕДСЕДАТЕЛЬ СОВЕТА МИНИСТРОВ", rank: "★ ★ GOVERNMENT HEAD", bio: "Heads the Council of Ministers.", img: "", status: "OFFICIAL" }
+    { id: "l1", name: "Hyawii", post: "GENERAL SECRETARY", postRu: "ГЕНЕРАЛЬНЫЙ СЕКРЕТАРЬ", rank: "★ ★ ★ SUPREME", bio: "First among equals. Chairs the Central Committee.", img: "", status: "LEADER", group: "High Command" },
+    { id: "l2", name: "— vacant —", post: "DEPUTY GENERAL SECRETARY", postRu: "ЗАМЕСТИТЕЛЬ", rank: "★ ★ HIGH COMMAND", bio: "Acts for the General Secretary.", img: "", status: "OFFICIAL", group: "Leadership" },
+    { id: "l3", name: "— vacant —", post: "PREMIER", postRu: "ПРЕДСЕДАТЕЛЬ СОВЕТА МИНИСТРОВ", rank: "★ ★ GOVERNMENT HEAD", bio: "Heads the Council of Ministers.", img: "", status: "OFFICIAL", group: "Leadership" }
   ],
+  categories: ["High Command", "Leadership"],
   pages: [
     { id: "p-overview", slug: "overview", title: "Overview", body: "# THE UNION STANDS\n\nThe official record of our Soviet Union server — its leaders, its structure, its history.\n\n- **Leadership** — who commands what, right now\n- **Structure** — how the Union is organised\n- **History** — how we got here\n\nPress **Join the Union** to enlist." },
     { id: "p-structure", slug: "structure", title: "Structure", body: "# STRUCTURE OF THE UNION\n\n- **Central Committee** — supreme organ, chaired by the General Secretary\n- **Council of Ministers** — government, headed by the Premier\n- **Republics** — fifteen SSRs, each with its First Secretary\n- **Red Army** — defence of the Union\n- **MVD** — internal order\n- **KGB** — state security\n\n*Edit this page from the committee menu.* " },
@@ -250,6 +255,8 @@ function normalize(v){
   const c = structuredClone(DEFAULTS);
   if (v.settings) c.settings = Object.assign(c.settings, v.settings);
   if (Array.isArray(v.leaders) && v.leaders.length) c.leaders = v.leaders;
+  if (Array.isArray(v.categories) && v.categories.length) c.categories = v.categories.slice();
+  c.leaders.forEach(l=>{ if(!l.group) l.group = "Leadership"; });
   if (Array.isArray(v.pages) && v.pages.length) c.pages = v.pages;
   return c;
 }
@@ -360,18 +367,28 @@ function badge(st){
   if (st === "VETERAN") return '<span class="badge b-warn">VETERAN</span>';
   return '<span class="badge b-good">OFFICIAL</span>';
 }
-function viewLeaders(){
-  const order = { LEADER:0, OFFICIAL:1, VETERAN:2 };
-  const ls = CONTENT.leaders.slice().sort((a,b)=>(order[a.status]??9)-(order[b.status]??9));
-  return '<div class="kicker">Who commands what — right now</div><h2>CURRENT LEADERSHIP</h2>'
-    + '<div class="leader-grid" style="margin-top:10px">'
-    + ls.map(l=>'<div class="leader'+(l.status==="LEADER"?" is-leader":"")+'"><div class="ph">'
+function leaderCard(l){
+  return '<div class="leader'+(l.status==="LEADER"?" is-leader":"")+'"><div class="ph">'
     + (l.img?'<img src="'+esc(l.img)+'" alt="'+esc(l.name)+'" loading="lazy" onerror="this.remove()">':"☭")
     + '</div><div class="lb"><span class="post">'+esc(l.post||"")+'</span> '+badge(l.status)
     + (l.postRu?'<div class="ru">'+esc(l.postRu)+'</div>':"")
     + '<h3>'+esc(l.name||"")+'</h3>'
     + (l.rank?'<div class="rank">'+esc(l.rank)+'</div>':"")
-    + (l.bio?'<p>'+esc(l.bio)+'</p>':"")+'</div></div>').join("") + '</div>';
+    + (l.bio?'<p>'+esc(l.bio)+'</p>':"")+'</div></div>';
+}
+function viewLeaders(){
+  const order = { LEADER:0, OFFICIAL:1, VETERAN:2 };
+  const cats = (CONTENT.categories && CONTENT.categories.length ? CONTENT.categories.slice() : ["Leadership"]);
+  CONTENT.leaders.forEach(l=>{ const g = l.group || "Leadership"; if(!cats.includes(g)) cats.push(g); });
+  let html = '<div class="kicker">Who commands what — right now</div><h2>CURRENT LEADERSHIP</h2>';
+  cats.forEach(cat=>{
+    const ls = CONTENT.leaders.filter(l=>(l.group||"Leadership")===cat)
+      .sort((a,b)=>(order[a.status]??9)-(order[b.status]??9));
+    if(!ls.length) return;
+    html += '<div class="kicker" style="margin-top:12px">'+esc(cat.toUpperCase())+'</div>'
+      + '<div class="leader-grid">' + ls.map(leaderCard).join("") + '</div>';
+  });
+  return html;
 }
 
 /* admin */
@@ -473,6 +490,7 @@ function refreshLeaders(){
       + '<input type="text" data-f="post" placeholder="POST / TITLE" value="'+esc(l.post||"")+'">'
       + '<input type="text" data-f="postRu" placeholder="russian title (optional)" value="'+esc(l.postRu||"")+'"></div>'
       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'
+      + '<select data-f="group">' + CONTENT.categories.map(c=>'<option value="'+esc(c)+'"'+(l.group===c?" selected":"")+'>'+esc(c)+'</option>').join("") + '</select>'
       + '<input type="text" data-f="rank" placeholder="rank — ★ ★ ★" value="'+esc(l.rank||"")+'">'
       + '<select data-f="status"><option'+(l.status==="LEADER"?" selected":"")+'>LEADER</option><option'+(l.status==="OFFICIAL"?" selected":"")+'>OFFICIAL</option><option'+(l.status==="VETERAN"?" selected":"")+'>VETERAN</option></select></div>'
       + '<textarea data-f="bio" style="min-height:60px" placeholder="short bio">'+esc(l.bio||"")+'</textarea>'
@@ -497,13 +515,24 @@ function collectLeader(d, l){
   l.post = d.querySelector('[data-f="post"]').value;
   l.postRu = d.querySelector('[data-f="postRu"]').value;
   l.rank = d.querySelector('[data-f="rank"]').value;
+  l.group = d.querySelector('[data-f="group"]').value;
   l.status = d.querySelector('[data-f="status"]').value;
   l.bio = d.querySelector('[data-f="bio"]').value;
   l.img = d.querySelector('[data-f="img"]').value.trim();
 }
 function fileToPhoto(file){
-  /* Photos are shrunk in-browser and stored as text in the database —
+  /* GIFs pass through untouched so they keep moving (under 3 MB).
+     Stills are shrunk in-browser and stored as text in the database —
      no Storage bucket, no CORS, works from any host. */
+  if ((file.type || "").toLowerCase() === "image/gif"){
+    return new Promise((resolve, reject)=>{
+      if (file.size > 3 * 1024 * 1024){ reject(new Error("gif too big")); return; }
+      const r = new FileReader();
+      r.onload = ()=>resolve(r.result);
+      r.onerror = ()=>reject(new Error("bad gif"));
+      r.readAsDataURL(file);
+    });
+  }
   return new Promise((resolve, reject)=>{
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -532,9 +561,9 @@ async function uploadPhoto(d, l){
     d.querySelector('[data-f="img"]').value = l.img;
     CONTENT.settings.updated = new Date().toISOString().slice(0,10);
     await saveAll(); renderAll(); refreshLeaders(); say(savedMsg("Photo saved"));
-  }catch(e){ say("That file is not a readable image."); }
+  }catch(e){ say("That file is not readable (GIFs must be under 3 MB)."); }
 }
-$("lAdd").onclick = ()=>{ CONTENT.leaders.push({ id: uid(), name:"New comrade", post:"NEW POST", postRu:"", rank:"★", bio:"", img:"", status:"OFFICIAL" }); refreshLeaders(); say("Added — fill the fields, then save leadership."); };
+$("lAdd").onclick = ()=>{ CONTENT.leaders.push({ id: uid(), name:"New comrade", post:"NEW POST", postRu:"", rank:"★", bio:"", img:"", status:"OFFICIAL", group:(CONTENT.categories.includes("Leadership")?"Leadership":CONTENT.categories[0]) }); refreshLeaders(); say("Added — fill the fields, then save leadership."); };
 $("lSave").onclick = async ()=>{
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
   await saveAll(); renderAll(); say(savedMsg("Leadership saved"));
@@ -555,7 +584,45 @@ $("sSave").onclick = async ()=>{
   });
   await saveAll(); renderAll(); say(savedMsg("Settings saved"));
 };
-function refreshAdmin(){ refreshPages(); refreshLeaders(); refreshSettings(); }
+function refreshCats(){
+  const w = $("cList"); w.innerHTML = "";
+  CONTENT.categories.forEach((c,idx)=>{
+    const d = document.createElement("div");
+    d.style.cssText = "display:flex;gap:6px;align-items:center;margin-top:6px";
+    d.innerHTML = '<input type="text" value="'+esc(c)+'" style="flex:1;margin:0"><button data-a="up">↑</button><button data-a="dn">↓</button><button data-a="rm">remove</button>';
+    const inp = d.querySelector("input");
+    inp.onchange = ()=>{ CONTENT.categories[idx] = inp.value.trim() || CONTENT.categories[idx]; };
+    d.querySelectorAll("[data-a]").forEach(b=>b.onclick=async ()=>{
+      CONTENT.categories[idx] = inp.value.trim() || CONTENT.categories[idx];
+      const name = CONTENT.categories[idx];
+      if(b.dataset.a==="rm"){
+        if(!confirm("Remove category “"+name+"”? Its leaders move to Leadership.")) return;
+        CONTENT.categories.splice(idx,1);
+        CONTENT.leaders.forEach(l=>{ if(l.group===name) l.group = "Leadership"; });
+        if(!CONTENT.categories.includes("Leadership")) CONTENT.categories.push("Leadership");
+      }
+      if(b.dataset.a==="up" && idx>0){ CONTENT.categories.splice(idx,1); CONTENT.categories.splice(idx-1,0,name); }
+      if(b.dataset.a==="dn"){ CONTENT.categories.splice(idx,1); CONTENT.categories.splice(idx+1,0,name); }
+      CONTENT.settings.updated = new Date().toISOString().slice(0,10);
+      await saveAll(); renderAll(); refreshAdmin(); say(savedMsg("Categories saved"));
+    });
+    w.appendChild(d);
+  });
+}
+$("cAdd").onclick = async ()=>{
+  const v = $("cNew").value.trim();
+  if(!v){ say("Type a category name first."); return; }
+  if(!CONTENT.categories.includes(v)) CONTENT.categories.push(v);
+  $("cNew").value = "";
+  CONTENT.settings.updated = new Date().toISOString().slice(0,10);
+  await saveAll(); renderAll(); refreshAdmin(); say(savedMsg("Category added"));
+};
+$("cSave").onclick = async ()=>{
+  document.querySelectorAll("#cList input").forEach((inp,i)=>{ CONTENT.categories[i] = inp.value.trim() || CONTENT.categories[i]; });
+  CONTENT.settings.updated = new Date().toISOString().slice(0,10);
+  await saveAll(); renderAll(); refreshAdmin(); say(savedMsg("Categories saved"));
+};
+function refreshAdmin(){ refreshPages(); refreshCats(); refreshLeaders(); refreshSettings(); }
 
 /* clock + init */
 function tick(){

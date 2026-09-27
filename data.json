@@ -8,6 +8,7 @@
     "stamp": "001",
     "updated": "2026-09-27"
   },
+  "categories": ["High Command", "Leadership"],
   "leaders": [
     {
       "id": "l1",
@@ -17,7 +18,8 @@
       "rank": "★ ★ ★ SUPREME",
       "bio": "First among equals. Chairs the Central Committee.",
       "img": "",
-      "status": "LEADER"
+      "status": "LEADER",
+      "group": "High Command"
     },
     {
       "id": "l2",
@@ -27,7 +29,8 @@
       "rank": "★ ★ HIGH COMMAND",
       "bio": "Acts for the General Secretary.",
       "img": "",
-      "status": "OFFICIAL"
+      "status": "OFFICIAL",
+      "group": "Leadership"
     },
     {
       "id": "l3",
@@ -37,7 +40,8 @@
       "rank": "★ ★ GOVERNMENT HEAD",
       "bio": "Heads the Council of Ministers.",
       "img": "",
-      "status": "OFFICIAL"
+      "status": "OFFICIAL",
+      "group": "Leadership"
     }
   ],
   "pages": [
