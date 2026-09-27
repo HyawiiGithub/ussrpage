@@ -52,16 +52,10 @@
       "body": "# THE UNION STANDS\n\nThe official record of our Soviet Union server — its leaders, its structure, its history.\n\n- **Leadership** — who commands what, right now\n- **Structure** — how the Union is organised\n- **History** — how we got here\n\nPress **Join the Union** to enlist."
     },
     {
-      "id": "p-structure",
-      "slug": "structure",
-      "title": "Structure",
-      "body": "# STRUCTURE OF THE UNION\n\n- **Central Committee** — supreme organ, chaired by the General Secretary\n- **Council of Ministers** — government, headed by the Premier\n- **Republics** — fifteen SSRs, each with its First Secretary\n- **Red Army** — defence of the Union\n- **MVD** — internal order\n- **KGB** — state security\n\n*Edit this page from the committee menu.*"
-    },
-    {
       "id": "p-history",
       "slug": "history",
       "title": "History",
-      "body": "# HISTORY\n\nThe chronicle of the Union, from foundation to today.\n\n*Write the story from the committee menu — add dates, names and victories as they happen.*"
+      "body": "# HISTORY\n\n★ WORK IN PROGRESS — the chroniclers are still writing this chapter. ★\n\nCheck back soon."
     },
     {
       "id": "p-join",

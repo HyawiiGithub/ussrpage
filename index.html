@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#7a0f0f">
-<title>USSR // CENTRAL ALMANAC</title>
+<title>Union of Soviet Socialist Republics</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -111,12 +111,12 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
 </style>
 </head>
 <body>
-<div class="top-rule"><b>ЦК // CENTRAL COMMITTEE</b> <span>★ OFFICIAL ALMANAC ★</span> <span style="margin-left:auto" id="topStamp">STAMP № 001</span></div>
+<div class="top-rule"><b>ЦК // CENTRAL COMMITTEE</b> <span>★ UNION OF SOVIET SOCIALIST REPUBLICS ★</span> <span style="margin-left:auto" id="topStamp">STAMP № 001</span></div>
 <div class="ticker"><span id="tickerText">★ СЛАВА СОЮЗУ ★ WORKERS OF THE WORLD, UNITE ★</span></div>
 <header class="hdr">
   <div style="display:flex;gap:10px;align-items:center">
     <div class="stamp">☭<small>CCCP</small></div>
-    <div class="brand"><h1><i>USSR</i> ALMANAC</h1><p id="brandSub">Official record of the Union</p></div>
+    <div class="brand"><h1 style="font-size:24px">Union of Soviet Socialist Republics</h1><p id="brandSub">Official record of the Union</p></div>
   </div>
   <nav class="nav" id="nav"></nav>
   <div class="clock"><div class="t" id="clock">--:-- MSK</div><div class="s"><span class="live"></span><span id="genAt">CENTRAL ARCHIVE</span></div></div>
@@ -124,7 +124,7 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
 
 <div class="page" id="page"></div>
 
-<div class="foot">USSR CENTRAL ALMANAC // <a href="https://discord.gg/soviets" target="_blank" rel="noopener">DISCORD</a> • <span id="footStamp">STAMP № 001</span> • COMMITTEE ONLY BEYOND THIS POINT</div>
+<div class="foot">UNION OF SOVIET SOCIALIST REPUBLICS // <a href="https://discord.gg/soviets" target="_blank" rel="noopener">DISCORD</a> • <span id="footStamp">STAMP № 001</span> • COMMITTEE ONLY BEYOND THIS POINT</div>
 <div id="dot" title="committee menu"></div>
 
 <div id="menu"><div id="mbox">
@@ -144,7 +144,7 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
       <button id="mLock" style="margin-left:auto">lock</button>
     </div>
     <div id="atab-pages">
-      <p>Pages are the menu entries (Leadership is automatic — the rest render from text below).</p>
+      <p>Free pages (History and any you create) render from text. Overview, Leadership and Structure are automatic — History is yours to write. Pages marked ★ cannot be deleted.</p>
       <select id="pList"></select>
       <input type="text" id="pTitle" placeholder="page title">
       <textarea id="pBody" placeholder="page text…"></textarea>
@@ -219,8 +219,7 @@ const DEFAULTS = {
   categories: ["High Command", "Leadership"],
   pages: [
     { id: "p-overview", slug: "overview", title: "Overview", body: "# THE UNION STANDS\n\nThe official record of our Soviet Union server — its leaders, its structure, its history.\n\n- **Leadership** — who commands what, right now\n- **Structure** — how the Union is organised\n- **History** — how we got here\n\nPress **Join the Union** to enlist." },
-    { id: "p-structure", slug: "structure", title: "Structure", body: "# STRUCTURE OF THE UNION\n\n- **Central Committee** — supreme organ, chaired by the General Secretary\n- **Council of Ministers** — government, headed by the Premier\n- **Republics** — fifteen SSRs, each with its First Secretary\n- **Red Army** — defence of the Union\n- **MVD** — internal order\n- **KGB** — state security\n\n*Edit this page from the committee menu.* " },
-    { id: "p-history", slug: "history", title: "History", body: "# HISTORY\n\nThe chronicle of the Union, from foundation to today.\n\n*Write the story from the committee menu — add dates, names and victories as they happen.*" },
+    { id: "p-history", slug: "history", title: "History", body: "# HISTORY\n\n★ WORK IN PROGRESS — the chroniclers are still writing this chapter. ★\n\nCheck back soon." },
     { id: "p-join", slug: "join", title: "Join", body: "# JOIN THE UNION\n\n1. Open the Discord invite\n2. Read the rules channel\n3. Take your republic role\n4. Report for duty\n\nThe Committee assigns every recruit a post." }
   ]
 };
@@ -309,12 +308,14 @@ function renderBody(src){
 
 /* public views */
 let CUR = "overview";
-function fixedPages(){ return ["overview","leadership","join"]; }
+function fixedPages(){ return ["overview","leadership","structure","join"]; }
+function lockedPages(){ return ["overview","leadership","structure"]; } /* automatic views — body edited elsewhere */
 function allNav(){
   const dyn = CONTENT.pages.filter(p => !fixedPages().includes(p.slug));
   return [
     { slug:"overview", title:"Overview" },
     { slug:"leadership", title:"Leadership" },
+    { slug:"structure", title:"Structure" },
     ...dyn.map(p=>({slug:p.slug,title:p.title})),
     { slug:"join", title:"Join" }
   ];
@@ -337,6 +338,7 @@ function renderAll(){
 function viewHTML(slug){
   const s = CONTENT.settings;
   if (slug === "leadership") return viewLeaders();
+  if (slug === "structure") return viewStructure();
   if (slug === "overview"){
     const leaders = CONTENT.leaders.filter(l=>l.status==="LEADER");
     return '<div class="hero"><div class="hero-main"><div class="kicker">Official record — '+(esc(s.updated)||"")+'</div>'
@@ -361,6 +363,23 @@ function viewHTML(slug){
   if (!p) return '<div class="card"><div class="card-b">Page not found.</div></div>';
   return '<div class="kicker">Committee record</div><h2>'+esc(p.title)+'</h2>'
     + '<div class="card" style="margin-top:10px"><div class="card-b"><div class="body-html">'+renderBody(p.body)+'</div></div></div>';
+}
+function viewStructure(){
+  /* Built live from categories + leaders — always in sync with Leadership. */
+  const order = { LEADER:0, OFFICIAL:1, VETERAN:2 };
+  const cats = (CONTENT.categories && CONTENT.categories.length ? CONTENT.categories.slice() : ["Leadership"]);
+  CONTENT.leaders.forEach(l=>{ const g = l.group || "Leadership"; if(!cats.includes(g)) cats.push(g); });
+  let html = '<div class="kicker">How the Union is organised — live from the roll</div><h2>STRUCTURE</h2>';
+  cats.forEach(cat=>{
+    const ls = CONTENT.leaders.filter(l=>(l.group||"Leadership")===cat)
+      .sort((a,b)=>(order[a.status]??9)-(order[b.status]??9));
+    if(!ls.length) return;
+    html += '<div class="card" style="margin-top:10px"><div class="card-h"><span>'+esc(cat.toUpperCase())+'</span><small>'+ls.length+' post'+(ls.length===1?"":"s")+'</small></div>'
+      + '<div class="card-b"><div class="table-wrap"><table><thead><tr><th>POST</th><th>HOLDER</th><th>STANDING</th></tr></thead><tbody>'
+      + ls.map(l=>'<tr><td><b>'+esc(l.post||"—")+'</b></td><td>'+esc(l.name||"—")+'</td><td>'+badge(l.status)+'</td></tr>').join("")
+      + '</tbody></table></div></div></div>';
+  });
+  return html;
 }
 function badge(st){
   if (st === "LEADER") return '<span class="badge b-red">LEADER</span>';
@@ -443,14 +462,24 @@ function refreshPages(){
   });
   const cur = CONTENT.pages[0];
   if (cur){ sel.value = cur.id; $("pTitle").value = cur.title; $("pBody").value = cur.body; }
+  lockPageFields();
+}
+function lockPageFields(){
+  const p = CONTENT.pages.find(p=>p.id===$("pList").value);
+  const locked = p && lockedPages().includes(p.slug);
+  $("pTitle").disabled = !!locked;
+  $("pBody").disabled = !!locked;
+  if (locked) say("“"+p.title+"” is automatic — edit it via Leadership / Settings, not here.");
 }
 $("pList").onchange = e=>{
   const p = CONTENT.pages.find(p=>p.id===e.target.value);
   if (p){ $("pTitle").value = p.title; $("pBody").value = p.body; }
+  lockPageFields();
 };
 $("pSave").onclick = async ()=>{
   const p = CONTENT.pages.find(p=>p.id===$("pList").value);
   if (!p){ say("Pick a page first."); return; }
+  if (lockedPages().includes(p.slug)){ say("“"+p.title+"” is automatic — edit it via Leadership / Settings."); return; }
   p.title = $("pTitle").value.trim() || p.title;
   p.body = $("pBody").value;
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
@@ -460,6 +489,7 @@ $("pNew").onclick = async ()=>{
   const title = $("pTitle").value.trim();
   if (!title){ say("Type a title first, then press new page."); return; }
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || uid();
+  if (fixedPages().includes(slug)){ say("That name is reserved for an automatic view."); return; }
   CONTENT.pages.push({ id: uid(), slug, title, body: $("pBody").value || "# "+title+"\n" });
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
   await saveAll(); renderAll(); refreshPages(); say("Created: " + title);

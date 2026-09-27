@@ -1,4 +1,4 @@
-# USSR CENTRAL ALMANAC — ussrpage
+# UNION OF SOVIET SOCIALIST REPUBLICS — ussrpage
 
 Official server record: **Leadership • Structure • History • Join**.
 Gosplan brutalist UI (flat crimson `#8a0f14`, paper `#e8dcc6`,
@@ -20,9 +20,10 @@ Open the site → red dot (bottom-right) or committee button → enter the
 **access code** (sent privately to the owner — never stored in this repo,
 only its salted SHA-256 hash is in `index.html`).
 
-- **Pages tab** — edit Structure / History / Join text, or create new pages
-  (they appear in the top menu automatically). Overview and Leadership and
-  Join shells cannot be deleted.
+- **Pages tab** — History and any pages you create render from text.
+  Overview, Leadership and **Structure are automatic** (Structure is built
+  live from your categories + roll — High Command first, then the rest).
+  Pages marked ★ cannot be deleted.
 - **Leadership tab** — add / remove leaders, change name, post, Russian
   title, rank, bio, status (**LEADER** = currently leading, red stamp;
   **OFFICIAL** = in office; **VETERAN** = former/honorary), reorder with ↑↓.
