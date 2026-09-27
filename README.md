@@ -1,61 +1,86 @@
 # USSR CENTRAL ALMANAC — ussrpage
 
-Official server record: **Leaders • Situation • 15 SSRs • Government • Decrees • Join**.
-Same Gosplan brutalist UI as **USSR-stock** (flat crimson `#8a0f14`, paper `#e8dcc6`,
-`IBM Plex Mono` + `Playfair Display`, 3px borders, stamp №).
+Official server record: **Leadership • Structure • History • Join**.
+Gosplan brutalist UI (flat crimson `#8a0f14`, paper `#e8dcc6`,
+`IBM Plex Mono` + `Playfair Display`).
 
-Live numbers (GSI, inflation, gold, companies) stay on the sister site:
-- Economy: https://ussr-stock.vercel.app
-- Economy repo: https://github.com/HyawiiGithub/USSR-stock
-- This almanac repo: https://github.com/HyawiiGithub/ussrpage
+- Invite: https://discord.gg/soviets
+- Other-site button migrates to the other site (link in Settings).
+- No numbers content lives here by design — one button only.
 
-## Files (all static — GitHub Pages ready)
+## Files (static — GitHub Pages, root)
 
-- `index.html` — whole site, 6 views (Overview / Leaders / SSRs / Government / Decrees / Join)
-- `data.json` — EDIT THIS for leaders, situation, ministries, laws, join steps
-- `updates.json` — EDIT THIS to publish decrees (newest first is auto-sorted)
+- `index.html` — whole site + committee menu (Firebase via CDN, no build)
+- `data.json` — fallback seed (used only if the database is unreachable)
+- `updates.json` — REMOVED (no decrees feed in this design)
 
-## Publish an update (30 seconds)
+## Editing (no code needed)
 
-1. Open `updates.json` on GitHub → pencil icon → add entry at the top:
-```json
-{
-  "date": "2026-09-28",
-  "tag": "DECREE",
-  "title": "YOUR TITLE HERE",
-  "body": "What changed, who signed, what citizens must do."
-}
-```
-Tags used so far: `DECREE`, `ELECTIONS`, `ECONOMY`, `PLAN`, `WAR`, `KGB`, `ANNOUNCEMENT`.
-2. Commit → Pages rebuilds (~1 min) → appears in Decrees view + PRAVDA ticker.
+Open the site → red dot (bottom-right) or committee button → enter the
+**access code** (sent privately to the owner — never stored in this repo,
+only its salted SHA-256 hash is in `index.html`).
 
-## Change a leader / the situation
+- **Pages tab** — edit Structure / History / Join text, or create new pages
+  (they appear in the top menu automatically). Overview and Leadership and
+  Join shells cannot be deleted.
+- **Leadership tab** — add / remove leaders, change name, post, Russian
+  title, rank, bio, status (**LEADER** = currently leading, red stamp;
+  **OFFICIAL** = in office; **VETERAN** = former/honorary), reorder with ↑↓.
+  Photo per leader: paste an image link, or upload a file (Union storage).
+- **Settings tab** — motto, ticker line, invite, other-site button link+label.
 
-Edit `data.json`:
-- `leadership[]` → `name`, `desc`, `status` (ACTIVE / VACANT?), optional `img` URL
-- `situation.headline / summary / status_lines[]`
-- `meta.last_updated` → today's date (shown in header + stamp)
+Everything saves to Firebase and appears for everyone instantly.
 
-Commit → live.
+## Firebase setup (one time, ~3 min)
 
-## First-time deploy (replace blank page)
+Database + storage both live in the `union-of-gaming-court` project
+(config is already in `index.html` — the apiKey is public by design).
 
-The repo currently holds a blank template `index.html`. Replace it:
+1. **Realtime Database** → Create database → region `europe-west1` → start
+   in **locked mode**, then replace Rules with:
+   ```json
+   {
+     "rules": {
+       "ussrpage": {
+         ".read": true,
+         ".write": true
+       }
+     }
+   }
+   ```
+   Publish. (Write is open so the committee menu can save without logins;
+   the access code gates the UI. Tighten later with Auth if you want.)
+2. **Storage** → Get started → same region → Rules allowing the leaders path:
+   ```
+   rules_version = '2';
+   service firebase.storage {
+     match /b/{bucket}/o {
+       match /ussrpage/leaders/{allPaths=**} {
+         allow read;
+         allow write;
+       }
+     }
+   }
+   ```
+   Publish. If uploads ever get blocked, paste image links instead — the
+   site works fine without Storage.
+3. Open the live site once, unlock with the code, press **save leadership**
+   once — this seeds `ussrpage/v1` in the database. Done.
+
+## Deploy
 
 ```bash
-git clone https://github.com/HyawiiGithub/ussrpage.git
-cp index.html data.json updates.json ussrpage/
-cd ussrpage
-git add index.html data.json updates.json
-git commit -m "feat: USSR Central Almanac — Gosplan UI, leaders, SSRs, decrees feed"
+git add index.html data.json README.md
+git commit -m "feat: almanac v2 — firebase committee menu, invite + other-site button"
 git push -u origin main
 ```
 
-Then enable Pages: repo **Settings → Pages → Deploy from branch → main / root**.
+Pages: repo **Settings → Pages → Deploy from branch → main / root**.
 Site: `https://hyawiigithub.github.io/ussrpage/`
 
-## Design lock (matches USSR-stock)
+## Changing the access code
 
-- No gradients / no glow. Flat fills only.
-- Borders `#111`, hard shadows `3-4px`, stamp rotated `-1deg`.
-- If you restyle, keep `:root` tokens identical to USSR-stock `index.html` so the two sites read as one system.
+Generate a new code, take its SHA-256 hex of `USSR-ALMANAC::v1` + code
+(e.g. `python3 -c "import hashlib;print(hashlib.sha256(('USSR-ALMANAC::v1'+'YOUR-CODE').encode()).hexdigest())"`),
+replace `CODE_HASH` in `index.html`, commit. The plaintext code must never
+be committed — send it privately.
