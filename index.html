@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>blank</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:#fff;color:#111;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.7;min-height:100vh}
+#page{max-width:820px;margin:0 auto;padding:48px 24px 80px;min-height:90vh;word-wrap:break-word}
+#page .hint{color:#ccc;font-family:Arial,sans-serif;font-size:13px;text-align:center;margin-top:40vh}
+/* what the small-codes build */
+#page h1{font-size:1.9em;margin:1em 0 .4em;line-height:1.25}
+#page h2{font-size:1.5em;margin:1.1em 0 .4em}
+#page h3{font-size:1.2em;margin:1.1em 0 .4em}
+#page p{margin:.7em 0}
+#page a{color:#0b4da2}
+#page blockquote{border-left:4px solid #999;background:#f7f7f7;margin:14px 0;padding:10px 16px}
+#page code{background:#eee;padding:1px 6px;border-radius:3px;font-size:.88em}
+#page pre{background:#111;color:#eee;padding:14px;overflow:auto;font-size:13.5px;line-height:1.5}
+#page table{border-collapse:collapse;width:100%;margin:14px 0}
+#page table th,#page table td{border:1px solid #bbb;padding:8px;text-align:left}
+#page table th{background:#eee}
+#page img{max-width:100%;height:auto}
+.fig{border:1px solid #ccc;padding:8px;margin:16px auto;text-align:center;max-width:100%}
+.fig img{width:100%;display:block}
+.fig figcaption{font-size:14px;padding:8px 4px 2px;color:#555;font-style:italic}
+.sealbox{border:2px solid #111;background:#fafafa;padding:14px 16px;margin:16px 0}
+.sealbox h5{margin:0 0 6px;font-family:Arial,sans-serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.vidwrap{position:relative;padding-bottom:56.25%;height:0;margin:16px 0;background:#000}
+.vidwrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.stamp{display:inline-block;border:3px double #111;padding:6px 16px;font-family:Arial,sans-serif;font-weight:bold;letter-spacing:.15em;transform:rotate(-3deg);margin:8px 4px}
+.anim-glow{animation:tglow 2.4s ease-in-out infinite;font-weight:bold}
+@keyframes tglow{0%,100%{text-shadow:none}50%{text-shadow:0 0 14px #888}}
+.anim-marquee{display:block;overflow:hidden;white-space:nowrap;border-top:1px solid #111;border-bottom:1px solid #111;padding:8px 0;font-family:Arial,sans-serif}
+.anim-marquee span{display:inline-block;padding-left:100%;animation:marq 12s linear infinite}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+.anim-flicker{animation:flick 1.6s infinite}
+@keyframes flick{0%,100%{opacity:1}50%{opacity:.55}}
+.anim-wave span{display:inline-block;animation:wave 1.6s ease-in-out infinite}
+@keyframes wave{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.spoiler{border:1px solid #bbb;margin:12px 0}
+.spoiler summary{cursor:pointer;background:#111;color:#fff;padding:8px 12px;font-family:Arial,sans-serif;font-size:13px}
+.spoiler div{padding:10px 14px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+@media(max-width:640px){.cols{grid-template-columns:1fr}}
+.cols>div{border:1px solid #ccc;padding:12px 14px}
+.gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.gal img{width:100%;height:150px;object-fit:cover;border:1px solid #ccc}
+.bigbtn{display:inline-block;background:#111;color:#fff!important;padding:10px 22px;font-family:Arial,sans-serif;text-decoration:none;margin:6px 6px 6px 0}
+.orn-div{text-align:center;letter-spacing:.5em;margin:16px 0;color:#555}
+/* the dot — the only thing on the page besides your words */
+#dot{position:fixed;right:10px;bottom:10px;width:14px;height:14px;border-radius:50%;background:#e3e3e3;border:1px solid #ccc;cursor:pointer;opacity:.7;z-index:50}
+#dot:hover{opacity:1;background:#999}
+/* editor menu — plain on purpose */
+#menu{position:fixed;inset:0;z-index:51;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);font-family:Arial,Helvetica,sans-serif}
+#menu.show{display:flex}
+#mbox{width:min(720px,94vw);max-height:92vh;overflow:auto;background:#fff;color:#111;border:1px solid #999;font-size:14px}
+#mbox h3{margin:0;padding:10px 14px;background:#f0f0f0;border-bottom:1px solid #ccc;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+#mbox h4{margin:16px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#333;border-bottom:1px solid #ddd;padding-bottom:4px}
+#mbox .sec{padding:0 14px 14px}
+#mbox input[type=text],#mbox input[type=password],#mbox textarea,#mbox select{width:100%;padding:7px;border:1px solid #aaa;font-family:Arial,sans-serif;font-size:13px;margin:3px 0;color:#111;background:#fff}
+#mbox textarea{min-height:150px;font-family:Consolas,Menlo,monospace;font-size:12.5px}
+#mbox button{font-family:Arial,sans-serif;font-size:12.5px;padding:6px 10px;border:1px solid #888;background:#f4f4f4;color:#111;cursor:pointer;margin:2px 4px 2px 0}
+#mbox button:hover{background:#e2e2e2}
+#mbox button.primary{background:#111;color:#fff;border-color:#111}
+#mbox .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+#mbox small{color:#666}
+#mbox p.explain{font-size:13px;color:#333;line-height:1.6}
+/* help */
+#help{position:fixed;inset:0;z-index:52;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);font-family:Arial,Helvetica,sans-serif}
+#help.show{display:flex}
+#helpbox{width:min(760px,94vw);max-height:92vh;overflow:auto;background:#fff;border:1px solid #999;font-size:13.5px}
+#helpbox h3{margin:0;padding:10px 14px;background:#f0f0f0;border-bottom:1px solid #ccc;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+#helpbox .sec{padding:0 14px 16px;line-height:1.65}
+#helpbox table{width:100%;border-collapse:collapse}
+#helpbox th,#helpbox td{border:1px solid #ccc;padding:7px;text-align:left;vertical-align:top}
+#helpbox th{background:#eee}
+#helpbox code{background:#111;color:#7bff9e;padding:1px 6px;border-radius:3px;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="page"></div>
+<div id="dot" title="menu (Ctrl+Shift+E)"></div>
+
+<div id="menu"><div id="mbox">
+  <h3><span>menu</span><span><button id="mClose">close</button></span></h3>
+  <div class="sec">
+    <h4>1 · unlock</h4>
+    <p class="explain">Only people with the secret code can change anything. Everyone else just reads. Type it once — it stays open until you close this tab.</p>
+    <div class="row"><input type="password" id="mCode" placeholder="secret code" style="flex:1;min-width:180px"><button class="primary" id="mUnlock">unlock</button><button id="mLock">lock</button></div>
+    <small id="mStatus">locked</small>
+    <h4>2 · pages</h4>
+    <p class="explain">Each page is its own address, like <b>#/Leaders</b>. Pick one to open it, or make a new one. Linking a word to a page that doesn't exist yet is fine — opening it later creates it.</p>
+    <div class="row"><select id="mList" style="flex:1;min-width:180px"></select><button id="mOpen">open</button><button id="mDelete">delete</button><button id="mDupe">duplicate</button></div>
+    <div class="row"><input type="text" id="mNew" placeholder="new page name…" style="flex:1;min-width:180px"><button class="primary" id="mCreate">create</button></div>
+    <h4>3 · write</h4>
+    <p class="explain">Write in the big box using the little codes below (or press <b>how to write</b> for the full list with examples). Press <b>save</b> and it appears on the white page instantly, and is remembered in this browser.</p>
+    <input type="text" id="mTitle" placeholder="page title">
+    <div class="row" id="mSnips"></div>
+    <textarea id="mBody" placeholder="write here…"></textarea>
+    <div class="row"><button class="primary" id="mSave">save</button><button id="mHelp">how to write</button></div>
+    <h4>4 · keep it safe</h4>
+    <p class="explain"><b>Download backup</b> saves everything to a file. <b>Upload backup</b> puts it back (or moves it to another computer). <b>Wipe</b> deletes every page and returns to a blank.</p>
+    <div class="row"><button id="mExport">download backup</button><button id="mImportBtn">upload backup</button><input type="file" id="mImportFile" accept=".json" style="display:none"><button id="mWipe">wipe everything</button></div>
+    <small id="mMsg"></small>
+  </div>
+</div></div>
+
+<div id="help"><div id="helpbox">
+  <h3><span>how to write — every little code</span><span><button id="hClose">close</button></span></h3>
+  <div class="sec">
+    <p>Type normally. Blank line = new paragraph. These little codes do the rest. Copy them exactly, changing only the words inside.</p>
+    <table>
+      <tr><th>you want</th><th>you type</th></tr>
+      <tr><td>big heading</td><td><code># My heading</code></td></tr>
+      <tr><td>smaller heading</td><td><code>## Smaller</code> or <code>### Even smaller</code></td></tr>
+      <tr><td>bold</td><td><code>**these words**</code></td></tr>
+      <tr><td>italic</td><td><code>*these words*</code></td></tr>
+      <tr><td>underline</td><td><code>__these words__</code></td></tr>
+      <tr><td>crossed out</td><td><code>~~these words~~</code></td></tr>
+      <tr><td>link to another page here</td><td><code>[[Leaders]]</code> — clicking it opens that page</td></tr>
+      <tr><td>link with own words</td><td><code>[[Leaders|our great leaders]]</code></td></tr>
+      <tr><td>link to another site</td><td><code>[click here](https://example.com)</code></td></tr>
+      <tr><td>picture</td><td><code>![what it shows](https://…/photo.jpg)</code></td></tr>
+      <tr><td>picture in a frame</td><td><code>{{img|https://…/photo.jpg|what it shows}}</code></td></tr>
+      <tr><td>many pictures</td><td><code>{{gallery|link1, link2, link3}}</code></td></tr>
+      <tr><td>coloured words (any colour code)</td><td><code>{{color|#c90000|red words}}</code> — find colours by searching "colour picker"</td></tr>
+      <tr><td>words on a coloured background</td><td><code>{{bg|#111111|white on dark}}</code></td></tr>
+      <tr><td>huge / tiny words</td><td><code>{{big|WOW}}</code> or <code>{{small|a whisper}}</code></td></tr>
+      <tr><td>centred words</td><td><code>{{center|these sit in the middle}}</code></td></tr>
+      <tr><td>box with a title</td><td><code>{{box|My title|the words inside…}}</code></td></tr>
+      <tr><td>glowing words</td><td><code>{{anim|glow|shiny words}}</code></td></tr>
+      <tr><td>scrolling banner</td><td><code>{{anim|marquee|news flash}}</code></td></tr>
+      <tr><td>flickering words</td><td><code>{{anim|flicker|spooky words}}</code></td></tr>
+      <tr><td>bouncing letters</td><td><code>{{anim|wave|wavy words}}</code></td></tr>
+      <tr><td>stamp</td><td><code>{{stamp|APPROVED}}</code></td></tr>
+      <tr><td>video (youtube link or .mp4 link)</td><td><code>{{video|https://www.youtube.com/watch?v=…}}</code></td></tr>
+      <tr><td>sound</td><td><code>{{audio|https://…/song.mp3}}</code></td></tr>
+      <tr><td>two columns side by side</td><td><code>{{columns|left words /// right words}}</code></td></tr>
+      <tr><td>quote</td><td><code>{{quote|the wise words|— who said it}}</code></td></tr>
+      <tr><td>button to a page</td><td><code>{{button|Meet the leaders|Leaders}}</code></td></tr>
+      <tr><td>hidden text (click to reveal)</td><td><code>{{spoiler|the secret…}}</code></td></tr>
+      <tr><td>fancy divider line</td><td><code>{{hr_star}}</code> or just <code>---</code> on its own line</td></tr>
+      <tr><td>bullet list</td><td><code>- first thing</code> on each line</td></tr>
+      <tr><td>numbered list</td><td><code>1. first thing</code> on each line</td></tr>
+      <tr><td>quote block</td><td><code>&gt; the quoted words</code></td></tr>
+      <tr><td>table</td><td><code>| Name | Year |</code> then <code>|---|---|</code> then <code>| Ivan | 1861 |</code> — one line per row</td></tr>
+      <tr><td>computer code</td><td><code>`code`</code> or a block between lines of <code>```</code></td></tr>
+    </table>
+    <p><b>Pages are linked by name.</b> Write <code>[[Dragons]]</code>, click it, create that page, write about dragons. That is how the whole thing grows — page by page, from nothing.</p>
+  </div>
+</div></div>
+
+<script>
+"use strict";
+/* The secret code itself is NOWHERE in this file — only its salted
+   SHA-256 fingerprint. To set a new permanent code for hosting, make
+   one in the menu (there is no panel for it now: hash it yourself or
+   ask), then replace ADMIN_HASH below with the fingerprint. */
+const SALT = "XIX-CENTURY-ARCHIVE::";
+const ADMIN_HASH = "705a6a215d96281dd697e068df498c99357da464f7d78b56e8ceba206d13d938";
+const LS_PAGES="grand_archive_pages_v2_blank", LS_HASH="grand_archive_hash_v1";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+function sha256ascii(str){
+  function rr(v,a){return (v>>>a)|(v<<(32-a));}
+  var maxWord=Math.pow(2,32), result='';
+  var words=[], bitLen=str.length*8;
+  var hash=sha256ascii.h=sha256ascii.h||[], k=sha256ascii.k=sha256ascii.k||[];
+  var prime=2, cnt=0;
+  if(!k.length){for(var i=0;cnt<64;i++){var isP=true;for(var f=2;f*f<=prime;f++){if(prime%f===0){isP=false;break;}}if(isP){if(cnt<8)hash[cnt]=Math.floor(Math.pow(2,32)*((prime-0.5)**(1/3)%1));k[cnt++]=Math.floor(Math.pow(2,32)*((prime-0.5)**(1/2)%1));}prime++;}}
+  str+='\x80';while(str.length%64-56)str+='\x00';
+  for(var i2=0;i2<str.length;i2++){var j=str.charCodeAt(i2);if(j>>8)return;words[i2>>2]|=j<<((3-i2)%4)*8;}
+  words[words.length]=(bitLen/maxWord)|0;words[words.length]=bitLen;
+  for(var j2=0;j2<words.length;){var w=words.slice(j2,j2+=16),ohash=hash;hash=hash.slice(0,8);
+    for(var i3=0;i3<64;i3++){var w15=w[i3-15],w2=w[i3-2],a=hash[0],e=hash[4];
+      var t1=hash[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i3]
+        +(w[i3]=(i3<16)?w[i3]:(w[i3-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i3-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+      var t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash=[(t1+t2)|0].concat(hash);hash[4]=(hash[4]+t1)|0;}
+    for(var i4=0;i4<8;i4++)hash[i4]=(hash[i4]+ohash[i4])|0;}
+  for(var i5=0;i5<8;i5++){for(var j3=3;j3+1;j3--){var b=(hash[i5]>>(j3*8))&255;result+=((b<16)?0:'')+b.toString(16);}}
+  return result;
+}
+async function sha256hex(s){
+  try{
+    if(window.crypto&&crypto.subtle&&window.isSecureContext!==false){
+      const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
+      return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,"0")).join("");
+    }
+  }catch(e){}
+  return sha256ascii(s);
+}
+function activeHash(){ try{const o=localStorage.getItem(LS_HASH); if(o&&/^[0-9a-f]{64}$/.test(o))return o;}catch(e){} return ADMIN_HASH; }
+let UNSEALED = false;
+try{UNSEALED = sessionStorage.getItem("grand_unsealed")==="1";}catch(e){}
+async function verifyCode(code){ const h=await sha256hex(SALT+code.trim()); const a=activeHash();
+  if(h.length!==a.length)return false; let d=0; for(let i=0;i<h.length;i++)d|=(h.charCodeAt(i)^a.charCodeAt(i)); return d===0; }
+
+let PAGES=[];
+try{const r=localStorage.getItem(LS_PAGES); PAGES=r?JSON.parse(r):[]; if(!Array.isArray(PAGES))PAGES=[];}catch(e){PAGES=[];}
+function savePages(){ try{localStorage.setItem(LS_PAGES,JSON.stringify(PAGES));}catch(e){} }
+
+/* ---------- the little codes ---------- */
+function inlineFmt(s){
+  s=s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,(m,alt,url)=>'<div class="fig"><img src="'+esc(url.trim())+'" alt="'+esc(alt)+'" loading="lazy" onerror="this.style.display=\'none\'"><figcaption>'+esc(alt)+'</figcaption></div>');
+  s=s.replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g,(m,p,l)=>'<a href="#/'+encodeURIComponent(p.trim())+'">'+esc(l.trim())+'</a>');
+  s=s.replace(/\[\[([^\]]+)\]\]/g,(m,p)=>'<a href="#/'+encodeURIComponent(p.trim())+'">'+esc(p.trim())+'</a>');
+  s=s.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,(m,l,u)=>'<a href="'+esc(u.trim())+'" target="_blank" rel="noopener">'+esc(l)+'</a>');
+  s=s.replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
+  s=s.replace(/(^|[^*])\*([^*\n]+)\*/g,"$1<i>$2</i>");
+  s=s.replace(/__([^_]+)__/g,"<u>$1</u>");
+  s=s.replace(/~~([^~]+)~~/g,"<s>$1</s>");
+  s=s.replace(/`([^`\n]+)`/g,"<code>$1</code>");
+  return s;
+}
+function ytEmbed(u){
+  let m=u.match(/v=([A-Za-z0-9_-]{6,})/)||u.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/)||u.match(/embed\/([A-Za-z0-9_-]{6,})/);
+  return m?m[1]:null;
+}
+function renderCustom(s){
+  let out=s;
+  out=out.replace(/\{\{hr_star\}\}/g,'<div class="orn-div">★ ❖ ★</div>');
+  out=out.replace(/\{\{star\}\}/g,'<span>★</span>');
+  out=out.replace(/\{\{img\|([^|{}]+)\|([^}{]*)\}\}/g,(m,u,c)=>'<div class="fig"><img src="'+esc(u.trim())+'" alt="'+esc(c.trim())+'" loading="lazy" onerror="this.parentElement.style.display=\'none\'">'+(c.trim()?'<figcaption>'+inlineFmt(esc(c.trim()))+'</figcaption>':'')+'</div>');
+  out=out.replace(/\{\{img\|([^|{}]+)\}\}/g,(m,u)=>'<div class="fig"><img src="'+esc(u.trim())+'" loading="lazy" onerror="this.parentElement.style.display=\'none\'"></div>');
+  out=out.replace(/\{\{gallery\|([^}{]+)\}\}/g,(m,l)=>{const urls=l.split(",").map(x=>x.trim()).filter(Boolean);
+    return '<div class="gal">'+urls.map(u=>'<img src="'+esc(u)+'" loading="lazy" onerror="this.style.display=\'none\'">').join("")+'</div>';});
+  out=out.replace(/\{\{video\|([^}{]+)\}\}/g,(m,u)=>{u=u.trim();const id=ytEmbed(u);
+    if(id)return '<div class="vidwrap"><iframe src="https://www.youtube.com/embed/'+id+'" allowfullscreen loading="lazy"></iframe></div>';
+    if(/\.(mp4|webm|ogg)(\?|$)/i.test(u))return '<video controls style="width:100%"><source src="'+esc(u)+'"></video>';
+    return '<div class="vidwrap"><iframe src="'+esc(u)+'" allowfullscreen loading="lazy"></iframe></div>';});
+  out=out.replace(/\{\{audio\|([^}{]+)\}\}/g,(m,u)=>'<audio controls style="width:100%;margin:12px 0" src="'+esc(u.trim())+'"></audio>');
+  out=out.replace(/\{\{color\|([^|{}]+)\|([^}{]+)\}\}/g,(m,c,t)=>'<span style="color:'+esc(c.trim())+'">'+inlineFmt(t)+'</span>');
+  out=out.replace(/\{\{bg\|([^|{}]+)\|([^}{]+)\}\}/g,(m,c,t)=>'<span style="background:'+esc(c.trim())+';color:#fff;padding:1px 7px;border-radius:2px">'+inlineFmt(t)+'</span>');
+  out=out.replace(/\{\{big\|([^}{]+)\}\}/g,(m,t)=>'<span style="font-size:1.5em;font-weight:bold">'+inlineFmt(t)+'</span>');
+  out=out.replace(/\{\{small\|([^}{]+)\}\}/g,(m,t)=>'<small>'+inlineFmt(t)+'</small>');
+  out=out.replace(/\{\{center\|([^}{]+)\}\}/g,(m,t)=>'<div style="text-align:center">'+inlineFmt(t)+'</div>');
+  out=out.replace(/\{\{right\|([^}{]+)\}\}/g,(m,t)=>'<div style="text-align:right">'+inlineFmt(t)+'</div>');
+  out=out.replace(/\{\{stamp\|([^}{]+)\}\}/g,(m,t)=>'<span class="stamp">'+esc(t.trim())+'</span>');
+  out=out.replace(/\{\{box\|([^|{}]+)\|([^}{]+)\}\}/g,(m,ti,b)=>'<div class="sealbox"><h5>'+inlineFmt(ti.trim())+'</h5><div>'+inlineFmt(b.trim())+'</div></div>');
+  out=out.replace(/\{\{anim\|(glow|marquee|flicker|wave)\|([^}{]+)\}\}/g,(m,k,t)=>{
+    if(k==="marquee")return '<div class="anim-marquee"><span>'+esc(t.trim())+' &nbsp; ★ &nbsp; '+esc(t.trim())+'</span></div>';
+    if(k==="wave"){const ch=[...t.trim()].map((c,i)=>'<span style="animation-delay:'+(i*0.07)+'s">'+esc(c)+'</span>').join("");return '<span class="anim-wave">'+ch+'</span>';}
+    return '<span class="anim-'+k+'">'+inlineFmt(t)+'</span>';});
+  out=out.replace(/\{\{quote\|([^|{}]+)\|([^}{]*)\}\}/g,(m,t,a)=>'<blockquote>'+inlineFmt(t.trim())+(a.trim()?'<br><b>'+inlineFmt(a.trim())+'</b>':'')+'</blockquote>');
+  out=out.replace(/\{\{quote\|([^}{]+)\}\}/g,(m,t)=>'<blockquote>'+inlineFmt(t.trim())+'</blockquote>');
+  out=out.replace(/\{\{columns\|([^}{]+)\}\}/g,(m,t)=>{const p=t.split("///");const l=p[0]||"",r=p[1]||"";
+    return '<div class="cols"><div>'+inlineFmt(l.trim())+'</div><div>'+inlineFmt(r.trim())+'</div></div>';});
+  out=out.replace(/\{\{button\|([^|{}]+)\|([^}{]+)\}\}/g,(m,l,pg)=>'<a class="bigbtn" href="#/'+encodeURIComponent(pg.trim())+'">'+esc(l.trim())+'</a>');
+  out=out.replace(/\{\{spoiler\|([^}{]+)\}\}/g,(m,t)=>'<details class="spoiler"><summary>hidden — click to reveal</summary><div>'+inlineFmt(t.trim())+'</div></details>');
+  return out;
+}
+function renderBody(src){
+  const htmlBlocks=[];
+  src=String(src||"");
+  src=src.replace(/```html([\s\S]*?)```/gi,(m,c)=>{htmlBlocks.push(c);return "\u0000HTML"+(htmlBlocks.length-1)+"\u0000";});
+  const codeBlocks=[];
+  src=src.replace(/```([\s\S]*?)```/g,(m,c)=>{codeBlocks.push(c.replace(/^\n/,""));return "\u0000CODE"+(codeBlocks.length-1)+"\u0000";});
+  let t=esc(src);
+  t=renderCustom(t);
+  const lines=t.split("\n");
+  let html="",inUL=false,inOL=false,para=[];
+  const flushPara=()=>{if(para.length){html+="<p>"+para.join("<br>")+"</p>";para=[];}};
+  const closeLists=()=>{if(inUL){html+="</ul>";inUL=false;}if(inOL){html+="</ol>";inOL=false;}};
+  let i=0;
+  while(i<lines.length){
+    const ln=lines[i], tr=ln.trim();
+    if(tr.startsWith("\u0000HTML")){flushPara();closeLists();const n=+tr.replace(/\D/g,"");html+=htmlBlocks[n]||"";i++;continue;}
+    if(tr.startsWith("\u0000CODE")){flushPara();closeLists();const n=+tr.replace(/\D/g,"");html+="<pre>"+esc(codeBlocks[n]||"")+"</pre>";i++;continue;}
+    if(/^(---|\*\*\*|___)\s*$/.test(tr)){flushPara();closeLists();html+='<div class="orn-div">★ ❖ ★</div>';i++;continue;}
+    let hm=tr.match(/^(#{1,3})\s+(.*)/);
+    if(hm){flushPara();closeLists();const lv=hm[1].length;html+="<h"+lv+">"+inlineFmt(hm[2])+"</h"+lv+">";i++;continue;}
+    if(/^\|.*\|\s*$/.test(tr)&&i+1<lines.length&&/^[\s|:\-]+\|?\s*$/.test(lines[i+1].trim())&&lines[i+1].includes("-")){
+      flushPara();closeLists();
+      const head=tr.split("|").map(x=>x.trim()).filter(Boolean);
+      html+="<table><tr>"+head.map(h=>"<th>"+inlineFmt(h)+"</th>").join("")+"</tr>";
+      i+=2;
+      while(i<lines.length&&/^\|.*\|\s*$/.test(lines[i].trim())){const cells=lines[i].trim().split("|").map(x=>x.trim()).filter(Boolean);
+        html+="<tr>"+cells.map(c=>"<td>"+inlineFmt(c)+"</td>").join("")+"</tr>";i++;}
+      html+="</table>";continue;}
+    if(/^&gt;\s?/.test(tr)){flushPara();closeLists();let q=[];while(i<lines.length&&/^&gt;\s?/.test(lines[i].trim())){q.push(lines[i].trim().replace(/^&gt;\s?/,""));i++;}
+      html+="<blockquote>"+inlineFmt(q.join("<br>"))+"</blockquote>";continue;}
+    if(/^(\d+)\.\s+/.test(tr)){flushPara();if(inUL){html+="</ul>";inUL=false;}if(!inOL){html+="<ol>";inOL=true;}
+      html+="<li>"+inlineFmt(tr.replace(/^\d+\.\s+/,""))+"</li>";i++;
+      if(i>=lines.length||!/^\d+\.\s+/.test(lines[i].trim())){html+="</ol>";inOL=false;}continue;}
+    if(/^[-*]\s+/.test(tr)){flushPara();if(inOL){html+="</ol>";inOL=false;}if(!inUL){html+="<ul>";inUL=true;}
+      html+="<li>"+inlineFmt(tr.replace(/^[-*]\s+/,""))+"</li>";i++;
+      if(i>=lines.length||!/^[-*]\s+/.test(lines[i].trim())){html+="</ul>";inUL=false;}continue;}
+    if(tr===""){flushPara();closeLists();i++;continue;}
+    if(/<(div|blockquote|details|table|h[123]|ul|ol|pre|figure|iframe|audio|video)/.test(tr)){flushPara();closeLists();html+=ln;i++;continue;}
+    para.push(inlineFmt(ln));i++;
+  }
+  flushPara();closeLists();
+  html=html.replace(/\u0000HTML(\d+)\u0000/g,(m,n)=>htmlBlocks[+n]||"");
+  html=html.replace(/\u0000CODE(\d+)\u0000/g,(m,n)=>"<pre>"+esc(codeBlocks[+n]||"")+"</pre>");
+  return html;
+}
+
+/* ---------- pages ---------- */
+function curTitle(){ return decodeURIComponent(location.hash.replace(/^#\/?/,"")).trim(); }
+function findPage(t){ return PAGES.find(p=>p.title.toLowerCase()===String(t).toLowerCase()); }
+function renderView(){
+  const t=curTitle(), p=findPage(t), el=$("page");
+  if(!PAGES.length){ el.innerHTML='<div class="hint">empty — click the dot in the corner to begin</div>'; document.title="blank"; }
+  else if(!p){
+    if(!t){ location.hash="#/"+encodeURIComponent(PAGES[0].title); return; }
+    el.innerHTML='<h1>'+esc(t)+'</h1><p style="color:#888">This page does not exist yet.</p>'+(UNSEALED?'<p><button id="mkBtn" style="font-family:Arial;padding:8px 16px;border:1px solid #888;background:#f4f4f4;cursor:pointer">create “'+esc(t)+'”</button></p>':'<p style="color:#888">Unlock in the menu to create it.</p>');
+    document.title=t;
+    const b=$("mkBtn"); if(b)b.onclick=()=>{const now=new Date().toLocaleString();PAGES.push({title:t,body:"# "+t+"\n",created:now,updated:now});savePages();renderView();openMenu();};
+  }
+  else{ el.innerHTML=renderBody(p.body); document.title=p.title; }
+  refreshMenu();
+}
+window.addEventListener("hashchange",renderView);
+
+/* ---------- menu ---------- */
+function say(m){$("mMsg").textContent=m||"";}
+function openMenu(){refreshMenu();$("menu").classList.add("show");}
+function closeMenu(){$("menu").classList.remove("show");}
+$("dot").onclick=openMenu;
+$("mClose").onclick=closeMenu;
+$("menu").addEventListener("click",e=>{if(e.target.id==="menu")closeMenu();});
+document.addEventListener("keydown",e=>{if(e.ctrlKey&&e.shiftKey&&(e.key==="E"||e.key==="e")){e.preventDefault();$("menu").classList.contains("show")?closeMenu():openMenu();}});
+$("mHelp").onclick=()=>$("help").classList.add("show");
+$("hClose").onclick=()=>$("help").classList.remove("show");
+$("help").addEventListener("click",e=>{if(e.target.id==="help")$("help").classList.remove("show");});
+$("mCode").addEventListener("keydown",e=>{if(e.key==="Enter")$("mUnlock").click();});
+
+$("mUnlock").onclick=async()=>{
+  const c=$("mCode").value; if(!c.trim()){say("type the code first.");return;}
+  say("checking…");
+  if(await verifyCode(c)){UNSEALED=true;try{sessionStorage.setItem("grand_unsealed","1");}catch(e){}$("mCode").value="";say("unlocked — you can change things now.");}
+  else say("wrong code.");
+  refreshMenu(); renderView();
+};
+$("mLock").onclick=()=>{UNSEALED=false;try{sessionStorage.removeItem("grand_unsealed");}catch(e){}say("locked.");refreshMenu();renderView();};
+
+function refreshMenu(){
+  const sel=$("mList"); if(!sel)return;
+  const cur=curTitle();
+  sel.innerHTML="";
+  PAGES.forEach(p=>{const o=document.createElement("option");o.value=p.title;o.textContent=p.title;if(p.title===cur)o.selected=true;sel.appendChild(o);});
+  if(!PAGES.length){const o=document.createElement("option");o.value="";o.textContent="(no pages yet)";sel.appendChild(o);}
+  const p=findPage(sel.value||cur);
+  if(p){if(document.activeElement!==$("mTitle"))$("mTitle").value=p.title;if(document.activeElement!==$("mBody"))$("mBody").value=p.body||"";}
+  else{$("mTitle").value="";if(document.activeElement!==$("mBody"))$("mBody").value="";}
+  $("mStatus").textContent=UNSEALED?"unlocked":"locked";
+}
+$("mList").addEventListener("change",e=>{const p=findPage(e.target.value);if(p){$("mTitle").value=p.title;$("mBody").value=p.body||"";}});
+$("mOpen").onclick=()=>{const v=$("mList").value;if(v){location.hash="#/"+encodeURIComponent(v);closeMenu();}};
+$("mCreate").onclick=()=>{
+  if(!UNSEALED){say("unlock first (section 1).");return;}
+  const t=$("mNew").value.trim();if(!t){say("name the page first.");return;}
+  if(findPage(t)){location.hash="#/"+encodeURIComponent(t);closeMenu();say("that page already exists — opened it.");return;}
+  const now=new Date().toLocaleString();PAGES.push({title:t,body:"# "+t+"\n",created:now,updated:now});
+  savePages();$("mNew").value="";location.hash="#/"+encodeURIComponent(t);renderView();say("created: "+t);
+};
+$("mSave").onclick=()=>{
+  if(!UNSEALED){say("unlock first (section 1).");return;}
+  const cur=curTitle();let p=findPage(cur)||findPage($("mList").value);
+  const nt=$("mTitle").value.trim();
+  if(!p){
+    if(!nt){say("nothing to save — create a page first (section 2).");return;}
+    const now=new Date().toLocaleString();p={title:nt,body:$("mBody").value,created:now,updated:now};PAGES.push(p);
+  }else{
+    if(nt&&nt!==p.title){if(findPage(nt)){say("that name is taken.");return;}p.title=nt;}
+    p.body=$("mBody").value;p.updated=new Date().toLocaleString();
+  }
+  savePages();location.hash="#/"+encodeURIComponent(p.title);renderView();say("saved.");
+};
+$("mDelete").onclick=()=>{
+  if(!UNSEALED){say("unlock first (section 1).");return;}
+  const v=$("mList").value;if(!v||!confirm("Delete “"+v+"”?"))return;
+  PAGES=PAGES.filter(p=>p.title!==v);savePages();
+  if(PAGES.length)location.hash="#/"+encodeURIComponent(PAGES[0].title);else{location.hash="#/";renderView();}
+  say("deleted.");
+};
+$("mDupe").onclick=()=>{
+  if(!UNSEALED){say("unlock first (section 1).");return;}
+  const p=findPage($("mList").value);if(!p)return;
+  const now=new Date().toLocaleString();
+  PAGES.push({title:p.title+" (copy)",body:p.body,created:now,updated:now});savePages();renderView();say("duplicated.");
+};
+(function(){
+  const snips=["# Heading","**bold**","*italic*","__underline__","[[Page]]","[label](https://…)","![what](https://…/pic.jpg)","{{img|url|what}}","{{color|#c90000|words}}","{{box|Title|words}}","{{anim|glow|words}}","{{anim|marquee|words}}","{{stamp|OK}}","{{video|url}}","{{columns|left /// right}}","{{quote|words|— who}}","{{button|Label|Page}}","{{hr_star}}"];
+  const w=$("mSnips");
+  snips.forEach(s=>{const b=document.createElement("button");b.textContent=s.length>15?s.slice(0,15)+"…":s;b.title="insert: "+s;
+    b.onclick=()=>{const ta=$("mBody");const a=ta.selectionStart??ta.value.length;ta.value=ta.value.slice(0,a)+s+ta.value.slice(ta.selectionEnd??a);ta.focus();};
+    w.appendChild(b);});
+})();
+$("mExport").onclick=()=>{const blob=new Blob([JSON.stringify({pages:PAGES},null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="pages-backup.json";a.click();say("backup downloaded.");};
+$("mImportBtn").onclick=()=>{if(!UNSEALED){say("unlock first (section 1).");return;}$("mImportFile").click();};
+$("mImportFile").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(d.pages&&Array.isArray(d.pages)){PAGES=d.pages;savePages();renderView();say("backup loaded: "+PAGES.length+" pages.");}else say("that file has no pages in it.");}catch(err){say("that file is broken.");}};
+  r.readAsText(f);e.target.value="";});
+$("mWipe").onclick=()=>{if(!UNSEALED){say("unlock first (section 1).");return;}if(!confirm("Delete EVERY page?"))return;
+  PAGES=[];savePages();location.hash="#/";renderView();say("all blank.");};
+
+renderView();
+</script>
+</body>
+</html>
