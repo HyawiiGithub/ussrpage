@@ -7,15 +7,17 @@
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{background:#fff;color:#111;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.7;min-height:100vh}
-#page{max-width:820px;margin:0 auto;padding:48px 24px 80px;min-height:90vh;word-wrap:break-word}
+body{background:var(--bg,#fff);color:var(--ink,#111);font-family:var(--font,Georgia,'Times New Roman',serif);font-size:var(--fsize,17px);line-height:1.7;min-height:100vh}
+body.fade #page{animation:fadein .45s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#page{max-width:var(--maxw,820px);margin:0 auto;padding:48px 24px 80px;min-height:90vh;word-wrap:break-word}
 #page .hint{color:#ccc;font-family:Arial,sans-serif;font-size:13px;text-align:center;margin-top:40vh}
 /* what the small-codes build */
-#page h1{font-size:1.9em;margin:1em 0 .4em;line-height:1.25}
-#page h2{font-size:1.5em;margin:1.1em 0 .4em}
-#page h3{font-size:1.2em;margin:1.1em 0 .4em}
+#page h1{font-size:1.9em;margin:1em 0 .4em;line-height:1.25;color:var(--hcolor,#111)}
+#page h2{font-size:1.5em;margin:1.1em 0 .4em;color:var(--hcolor,#111)}
+#page h3{font-size:1.2em;margin:1.1em 0 .4em;color:var(--hcolor,#111)}
 #page p{margin:.7em 0}
-#page a{color:#0b4da2}
+#page a{color:var(--link,#0b4da2)}
 #page blockquote{border-left:4px solid #999;background:#f7f7f7;margin:14px 0;padding:10px 16px}
 #page code{background:#eee;padding:1px 6px;border-radius:3px;font-size:.88em}
 #page pre{background:#111;color:#eee;padding:14px;overflow:auto;font-size:13.5px;line-height:1.5}
@@ -50,6 +52,11 @@ body{background:#fff;color:#111;font-family:Georgia,'Times New Roman',serif;font
 .gal img{width:100%;height:150px;object-fit:cover;border:1px solid #ccc}
 .bigbtn{display:inline-block;background:#111;color:#fff!important;padding:10px 22px;font-family:Arial,sans-serif;text-decoration:none;margin:6px 6px 6px 0}
 .orn-div{text-align:center;letter-spacing:.5em;margin:16px 0;color:#555}
+/* banner — built in the menu, shown on top of every page */
+.banner{margin:-48px -24px 26px;padding:30px 18px;background-size:cover;background-position:center}
+.ban-t{font-size:2em;font-weight:bold;line-height:1.2}
+.ban-s{opacity:.85;margin-top:6px}
+.ban-glow .ban-t{animation:tglow 2.4s ease-in-out infinite}
 /* the dot — the only thing on the page besides your words */
 #dot{position:fixed;right:10px;bottom:10px;width:14px;height:14px;border-radius:50%;background:#e3e3e3;border:1px solid #ccc;cursor:pointer;opacity:.7;z-index:50}
 #dot:hover{opacity:1;background:#999}
@@ -79,6 +86,7 @@ body{background:#fff;color:#111;font-family:Georgia,'Times New Roman',serif;font
 #helpbox th{background:#eee}
 #helpbox code{background:#111;color:#7bff9e;padding:1px 6px;border-radius:3px;white-space:nowrap}
 </style>
+<style id="customCss"></style>
 </head>
 <body>
 <div id="page"></div>
@@ -101,7 +109,27 @@ body{background:#fff;color:#111;font-family:Georgia,'Times New Roman',serif;font
     <div class="row" id="mSnips"></div>
     <textarea id="mBody" placeholder="write here…"></textarea>
     <div class="row"><button class="primary" id="mSave">save</button><button id="mHelp">how to write</button></div>
-    <h4>4 · keep it safe</h4>
+    <h4>4 · design — background, banner, colours, motion</h4>
+    <p class="explain">This changes how <b>every page</b> looks. Everything saves by itself as you change it. Easiest start: pick a ready look, then tweak it.</p>
+    <div class="row"><select id="dPreset" style="flex:1;min-width:180px"><option value="white">White (blank)</option><option value="paper">Old paper</option><option value="dark">Dark night</option><option value="red">Red banner</option></select><button id="dApplyPreset">use this look</button></div>
+    <p class="explain"><b>Background.</b> The colour behind everything. Tap the box or paste any colour code (search "colour picker" to find codes). A picture link is optional — leave it empty for plain colour.</p>
+    <div class="row"><input type="color" id="dBg" style="flex:0 0 46px;height:32px;padding:0"><input type="text" id="dBgT" placeholder="#ffffff" style="flex:1;min-width:110px"></div>
+    <div class="row"><input type="text" id="dBgImg" placeholder="background picture link (optional)"></div>
+    <p class="explain"><b>Words.</b> Text colour, link colour, heading colour, letter style, letter size, and how wide the page is.</p>
+    <div class="row"><input type="color" id="dInk" style="flex:0 0 46px;height:32px;padding:0" title="text"><input type="text" id="dInkT" placeholder="text #111111" style="flex:1;min-width:110px"><input type="color" id="dLink" style="flex:0 0 46px;height:32px;padding:0" title="links"><input type="text" id="dLinkT" placeholder="links #0b4da2" style="flex:1;min-width:110px"></div>
+    <div class="row"><input type="color" id="dH" style="flex:0 0 46px;height:32px;padding:0" title="headings"><input type="text" id="dHT" placeholder="headings #111111" style="flex:1;min-width:110px"></div>
+    <div class="row"><select id="dFont" style="flex:1;min-width:170px"><option value="Georgia,'Times New Roman',serif">Classic book letters</option><option value="Arial,Helvetica,sans-serif">Plain modern letters</option><option value="'Courier New',monospace">Typewriter letters</option><option value="'Times New Roman',serif">Newspaper letters</option></select><select id="dSize" style="flex:1;min-width:130px"><option value="15">small letters</option><option value="17">normal letters</option><option value="19">big letters</option><option value="21">huge letters</option></select><select id="dWidth" style="flex:1;min-width:130px"><option value="640">narrow page</option><option value="820">normal page</option><option value="1000">wide page</option></select></div>
+    <p class="explain"><b>Banner.</b> A big title bar on top of every page. Tick the box, write a title and a smaller line under it, pick its colours. It is the fastest way to make the place feel like yours.</p>
+    <div class="row"><label style="font-size:13px"><input type="checkbox" id="dBanOn" style="width:auto"> show banner</label><select id="dBanAlign" style="flex:1;min-width:130px"><option value="center">title in the middle</option><option value="left">title on the left</option><option value="right">title on the right</option></select><select id="dBanAnim" style="flex:1;min-width:130px"><option value="none">still title</option><option value="glow">glowing title</option></select></div>
+    <div class="row"><input type="text" id="dBanT" placeholder="banner title, e.g. Our Realm"></div>
+    <div class="row"><input type="text" id="dBanS" placeholder="smaller line under it (optional)"></div>
+    <div class="row"><input type="color" id="dBanBg" style="flex:0 0 46px;height:32px;padding:0" title="banner background"><input type="text" id="dBanBgT" placeholder="banner #111111" style="flex:1;min-width:110px"><input type="color" id="dBanTxt" style="flex:0 0 46px;height:32px;padding:0" title="banner text"><input type="text" id="dBanTxtT" placeholder="title #ffffff" style="flex:1;min-width:110px"></div>
+    <div class="row"><input type="text" id="dBanImg" placeholder="banner picture link (optional, covers the banner)"></div>
+    <p class="explain"><b>Motion.</b> Pages can fade in softly when opened. (Glowing, wavy, flickering and scrolling words from "how to write" always work.)</p>
+    <div class="row"><label style="font-size:13px"><input type="checkbox" id="dFade" style="width:auto"> pages fade in</label></div>
+    <p class="explain"><b>Extra code (optional).</b> Only if you know website code — it runs last and beats everything else.</p>
+    <textarea id="dCustom" style="min-height:70px" placeholder="e.g. .ban-t{ letter-spacing: 6px }"></textarea>
+    <h4>5 · keep it safe</h4>
     <p class="explain"><b>Download backup</b> saves everything to a file. <b>Upload backup</b> puts it back (or moves it to another computer). <b>Wipe</b> deletes every page and returns to a blank.</p>
     <div class="row"><button id="mExport">download backup</button><button id="mImportBtn">upload backup</button><input type="file" id="mImportFile" accept=".json" style="display:none"><button id="mWipe">wipe everything</button></div>
     <small id="mMsg"></small>
@@ -161,7 +189,7 @@ body{background:#fff;color:#111;font-family:Georgia,'Times New Roman',serif;font
    ask), then replace ADMIN_HASH below with the fingerprint. */
 const SALT = "XIX-CENTURY-ARCHIVE::";
 const ADMIN_HASH = "705a6a215d96281dd697e068df498c99357da464f7d78b56e8ceba206d13d938";
-const LS_PAGES="grand_archive_pages_v2_blank", LS_HASH="grand_archive_hash_v1";
+const LS_PAGES="grand_archive_pages_v2_blank", LS_HASH="grand_archive_hash_v1", LS_DESIGN="blank_design_v1";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
@@ -203,6 +231,37 @@ async function verifyCode(code){ const h=await sha256hex(SALT+code.trim()); cons
 let PAGES=[];
 try{const r=localStorage.getItem(LS_PAGES); PAGES=r?JSON.parse(r):[]; if(!Array.isArray(PAGES))PAGES=[];}catch(e){PAGES=[];}
 function savePages(){ try{localStorage.setItem(LS_PAGES,JSON.stringify(PAGES));}catch(e){} }
+
+/* ---------- design: background, banner, colours, motion (applies to every page) ---------- */
+const LOOKS={
+ white:{bg:"#ffffff",ink:"#111111",link:"#0b4da2",hcolor:"#111111",font:"Georgia,'Times New Roman',serif",fsize:"17",maxw:"820",bannerOn:"0",bannerTitle:"",bannerSub:"",bannerBg:"#111111",bannerTxt:"#ffffff",bannerImg:"",bannerAlign:"center",bannerAnim:"none",fade:"1",custom:""},
+ paper:{bg:"#f4ecd8",ink:"#2b2118",link:"#7a0c0c",hcolor:"#3c1e0d",font:"Georgia,'Times New Roman',serif",fsize:"18",maxw:"820",bannerOn:"1",bannerTitle:"",bannerSub:"",bannerBg:"#3c1e0d",bannerTxt:"#f4ecd8",bannerImg:"",bannerAlign:"center",bannerAnim:"none",fade:"1",custom:""},
+ dark:{bg:"#141414",ink:"#e8e8e8",link:"#7ab8ff",hcolor:"#ffffff",font:"Arial,Helvetica,sans-serif",fsize:"16",maxw:"820",bannerOn:"1",bannerTitle:"",bannerSub:"",bannerBg:"#000000",bannerTxt:"#ffffff",bannerImg:"",bannerAlign:"center",bannerAnim:"glow",fade:"1",custom:""},
+ red:{bg:"#ffffff",ink:"#1c0a0a",link:"#a31616",hcolor:"#7a0c0c",font:"Georgia,'Times New Roman',serif",fsize:"17",maxw:"900",bannerOn:"1",bannerTitle:"",bannerSub:"",bannerBg:"#7a0c0c",bannerTxt:"#ffe9a8",bannerImg:"",bannerAlign:"center",bannerAnim:"none",fade:"1",custom:""}
+};
+let DESIGN=Object.assign({},LOOKS.white,{bgImg:""});
+try{const d=localStorage.getItem(LS_DESIGN); if(d)DESIGN=Object.assign(DESIGN,JSON.parse(d));}catch(e){}
+function saveDesign(){ try{localStorage.setItem(LS_DESIGN,JSON.stringify(DESIGN));}catch(e){} }
+function applyDesign(){
+  const r=document.documentElement.style;
+  r.setProperty("--bg",DESIGN.bg||"#fff");r.setProperty("--ink",DESIGN.ink||"#111");
+  r.setProperty("--link",DESIGN.link||"#0b4da2");r.setProperty("--hcolor",DESIGN.hcolor||DESIGN.ink||"#111");
+  r.setProperty("--font",DESIGN.font||"Georgia,'Times New Roman',serif");
+  r.setProperty("--fsize",(DESIGN.fsize||"17")+"px");r.setProperty("--maxw",(DESIGN.maxw||"820")+"px");
+  if(DESIGN.bgImg&&DESIGN.bgImg.trim()){document.body.style.backgroundImage="url('"+DESIGN.bgImg.trim().replace(/'/g,"")+"')";document.body.style.backgroundSize="cover";document.body.style.backgroundAttachment="fixed";document.body.style.backgroundPosition="center";}
+  else{document.body.style.backgroundImage="";document.body.style.backgroundSize="";document.body.style.backgroundAttachment="";document.body.style.backgroundPosition="";}
+  document.body.classList.toggle("fade",DESIGN.fade==="1");
+  const cc=$("customCss"); if(cc)cc.textContent=DESIGN.custom||"";
+}
+function bannerHTML(){
+  if(DESIGN.bannerOn!=="1")return "";
+  const t=(DESIGN.bannerTitle||"").trim(), s=(DESIGN.bannerSub||"").trim();
+  if(!t&&!s)return "";
+  let st='background-color:'+(DESIGN.bannerBg||"#111")+';color:'+(DESIGN.bannerTxt||"#fff")+';text-align:'+(DESIGN.bannerAlign||"center")+';';
+  if(DESIGN.bannerImg&&DESIGN.bannerImg.trim())st+='background-image:url(\''+DESIGN.bannerImg.trim().replace(/'/g,"")+'\');';
+  const anim=(DESIGN.bannerAnim==="glow")?' ban-glow':'';
+  return '<header class="banner'+anim+'" style="'+st+'">'+(t?'<div class="ban-t">'+esc(t)+'</div>':'')+(s?'<div class="ban-s">'+esc(s)+'</div>':'')+'</header>';
+}
 
 /* ---------- the little codes ---------- */
 function inlineFmt(s){
@@ -312,7 +371,7 @@ function renderView(){
     document.title=t;
     const b=$("mkBtn"); if(b)b.onclick=()=>{const now=new Date().toLocaleString();PAGES.push({title:t,body:"# "+t+"\n",created:now,updated:now});savePages();renderView();openMenu();};
   }
-  else{ el.innerHTML=renderBody(p.body); document.title=p.title; }
+  else{ el.innerHTML=bannerHTML()+renderBody(p.body); document.title=p.title; }
   refreshMenu();
 }
 window.addEventListener("hashchange",renderView);
@@ -349,7 +408,40 @@ function refreshMenu(){
   if(p){if(document.activeElement!==$("mTitle"))$("mTitle").value=p.title;if(document.activeElement!==$("mBody"))$("mBody").value=p.body||"";}
   else{$("mTitle").value="";if(document.activeElement!==$("mBody"))$("mBody").value="";}
   $("mStatus").textContent=UNSEALED?"unlocked":"locked";
+  fillDesign();
 }
+function pairFill(c,t,v){const a=$(c),b=$(t);v=v||"";if(a){try{a.value=v;}catch(e){}}if(b&&document.activeElement!==b)b.value=v;}
+function fillDesign(){
+  pairFill("dBg","dBgT",DESIGN.bg);$("dBgImg").value=DESIGN.bgImg||"";
+  pairFill("dInk","dInkT",DESIGN.ink);pairFill("dLink","dLinkT",DESIGN.link);pairFill("dH","dHT",DESIGN.hcolor);
+  $("dFont").value=DESIGN.font;$("dSize").value=DESIGN.fsize;$("dWidth").value=DESIGN.maxw;
+  $("dBanOn").checked=DESIGN.bannerOn==="1";$("dBanT").value=DESIGN.bannerTitle||"";$("dBanS").value=DESIGN.bannerSub||"";
+  pairFill("dBanBg","dBanBgT",DESIGN.bannerBg);pairFill("dBanTxt","dBanTxtT",DESIGN.bannerTxt);
+  $("dBanImg").value=DESIGN.bannerImg||"";$("dBanAlign").value=DESIGN.bannerAlign;$("dBanAnim").value=DESIGN.bannerAnim;
+  $("dFade").checked=DESIGN.fade==="1";
+  if(document.activeElement!==$("dCustom"))$("dCustom").value=DESIGN.custom||"";
+}
+function grab(c,t){const b=$(t);if(b&&b.value.trim())return b.value.trim();return $(c).value;}
+function collectDesign(){
+  DESIGN.bg=grab("dBg","dBgT");DESIGN.bgImg=$("dBgImg").value.trim();
+  DESIGN.ink=grab("dInk","dInkT");DESIGN.link=grab("dLink","dLinkT");DESIGN.hcolor=grab("dH","dHT");
+  DESIGN.font=$("dFont").value;DESIGN.fsize=$("dSize").value;DESIGN.maxw=$("dWidth").value;
+  DESIGN.bannerOn=$("dBanOn").checked?"1":"0";DESIGN.bannerTitle=$("dBanT").value;
+  DESIGN.bannerSub=$("dBanS").value;DESIGN.bannerBg=grab("dBanBg","dBanBgT");DESIGN.bannerTxt=grab("dBanTxt","dBanTxtT");
+  DESIGN.bannerImg=$("dBanImg").value.trim();DESIGN.bannerAlign=$("dBanAlign").value;DESIGN.bannerAnim=$("dBanAnim").value;
+  DESIGN.fade=$("dFade").checked?"1":"0";DESIGN.custom=$("dCustom").value;
+}
+function designChanged(){collectDesign();saveDesign();applyDesign();renderView();}
+["dBg","dBgT","dBgImg","dInk","dInkT","dLink","dLinkT","dH","dHT","dCustom"].forEach(id=>$(id).addEventListener("input",designChanged));
+["dFont","dSize","dWidth","dBanT","dBanS","dBanBg","dBanBgT","dBanTxt","dBanTxtT","dBanImg","dBanAlign","dBanAnim"].forEach(id=>$(id).addEventListener("input",designChanged));
+["dFont","dSize","dWidth","dBanAlign","dBanAnim"].forEach(id=>$(id).addEventListener("change",designChanged));
+["dBanOn","dFade"].forEach(id=>$(id).addEventListener("change",designChanged));
+$("dApplyPreset").onclick=()=>{
+  const k=$("dPreset").value;if(!LOOKS[k])return;
+  const keepTitle=DESIGN.bannerTitle, keepSub=DESIGN.bannerSub;
+  DESIGN=Object.assign({},DESIGN,LOOKS[k]);DESIGN.bannerTitle=keepTitle;DESIGN.bannerSub=keepSub;
+  saveDesign();applyDesign();fillDesign();renderView();say("look applied — tweak anything below it.");
+};
 $("mList").addEventListener("change",e=>{const p=findPage(e.target.value);if(p){$("mTitle").value=p.title;$("mBody").value=p.body||"";}});
 $("mOpen").onclick=()=>{const v=$("mList").value;if(v){location.hash="#/"+encodeURIComponent(v);closeMenu();}};
 $("mCreate").onclick=()=>{
@@ -392,15 +484,16 @@ $("mDupe").onclick=()=>{
     b.onclick=()=>{const ta=$("mBody");const a=ta.selectionStart??ta.value.length;ta.value=ta.value.slice(0,a)+s+ta.value.slice(ta.selectionEnd??a);ta.focus();};
     w.appendChild(b);});
 })();
-$("mExport").onclick=()=>{const blob=new Blob([JSON.stringify({pages:PAGES},null,2)],{type:"application/json"});
+$("mExport").onclick=()=>{const blob=new Blob([JSON.stringify({pages:PAGES,design:DESIGN},null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="pages-backup.json";a.click();say("backup downloaded.");};
 $("mImportBtn").onclick=()=>{if(!UNSEALED){say("unlock first (section 1).");return;}$("mImportFile").click();};
 $("mImportFile").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const d=JSON.parse(r.result);if(d.pages&&Array.isArray(d.pages)){PAGES=d.pages;savePages();renderView();say("backup loaded: "+PAGES.length+" pages.");}else say("that file has no pages in it.");}catch(err){say("that file is broken.");}};
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(d.pages&&Array.isArray(d.pages)){PAGES=d.pages;savePages();if(d.design){DESIGN=Object.assign(DESIGN,d.design);saveDesign();applyDesign();}renderView();say("backup loaded: "+PAGES.length+" pages.");}else say("that file has no pages in it.");}catch(err){say("that file is broken.");}};
   r.readAsText(f);e.target.value="";});
 $("mWipe").onclick=()=>{if(!UNSEALED){say("unlock first (section 1).");return;}if(!confirm("Delete EVERY page?"))return;
   PAGES=[];savePages();location.hash="#/";renderView();say("all blank.");};
 
+applyDesign();
 renderView();
 </script>
 </body>
