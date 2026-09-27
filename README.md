@@ -26,15 +26,17 @@ only its salted SHA-256 hash is in `index.html`).
 - **Leadership tab** — add / remove leaders, change name, post, Russian
   title, rank, bio, status (**LEADER** = currently leading, red stamp;
   **OFFICIAL** = in office; **VETERAN** = former/honorary), reorder with ↑↓.
-  Photo per leader: paste an image link, or upload a file (Union storage).
+  Photo per leader: paste an image link, or pick a file (shrunk + stored automatically).
 - **Settings tab** — motto, ticker line, invite, other-site button link+label.
 
 Everything saves to Firebase and appears for everyone instantly.
 
-## Firebase setup (one time, ~3 min)
+## Firebase setup (one time, ~1 min)
 
-Database + storage both live in the `union-of-gaming-court` project
+Content lives in the `union-of-gaming-court` project's **Realtime Database**
 (config is already in `index.html` — the apiKey is public by design).
+Photos need no bucket: picked files are shrunk in the browser and stored
+as text alongside the record.
 
 1. **Realtime Database** → Create database → region `europe-west1` → start
    in **locked mode**, then replace Rules with:
@@ -50,21 +52,9 @@ Database + storage both live in the `union-of-gaming-court` project
    ```
    Publish. (Write is open so the committee menu can save without logins;
    the access code gates the UI. Tighten later with Auth if you want.)
-2. **Storage** → Get started → same region → Rules allowing the leaders path:
-   ```
-   rules_version = '2';
-   service firebase.storage {
-     match /b/{bucket}/o {
-       match /ussrpage/leaders/{allPaths=**} {
-         allow read;
-         allow write;
-       }
-     }
-   }
-   ```
-   Publish. If uploads ever get blocked, paste image links instead — the
-   site works fine without Storage.
-3. Open the live site once, unlock with the code, press **save leadership**
+   Until this is done, the menu keeps your edits on your device and says
+   DATABASE LOCKED instead of crashing.
+2. Open the live site once, unlock with the code, press **save leadership**
    once — this seeds `ussrpage/v1` in the database. Done.
 
 ## Deploy

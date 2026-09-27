@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <style>
 :root{
   --red:#8a0f14; --red-dark:#4a0608; --red-bg:#7a0f0f;
@@ -156,7 +155,7 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
       <p>Leaders appear on the Leadership page. Status <b>LEADER</b> marks who leads (red stamp); change anyone's post, photo or status here. Add or remove entries freely.</p>
       <div id="lList"></div>
       <div><button class="primary" id="lAdd">+ add leader</button><button class="dark" id="lSave">save leadership</button></div>
-      <small>Photo: paste an image link, or pick a file to upload it to Union storage, then save.</small>
+      <small>Photo: paste an image link, or pick a file (it is shrunk and stored automatically), then save.</small>
     </div>
     <div id="atab-settings" class="hidden">
       <p>Motto, invite and the other-site button.</p>
@@ -168,8 +167,8 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
       <div><button class="primary" id="sSave">save settings</button></div>
     </div>
     <div id="atab-help" class="hidden">
-      <p><b>How it works.</b> Everything you save here goes to the Union database (Firebase) and appears for everyone instantly — no code, no rebuild.</p>
-      <p style="margin-top:6px">• <b>Pages:</b> create e.g. History, Structure, Constitution. They appear in the top menu automatically.<br>• <b>Leadership:</b> add a photo per leader, set post + status. <b>LEADER</b> = currently leading (red stamp), <b>OFFICIAL</b> = in office, <b>VETERAN</b> = former / honorary. Remove anyone with one click.<br>• <b>Photos:</b> file uploads go to Union storage; links work too.<br>• Keep the access code secret. Anyone with it can edit.</p>
+      <p><b>How it works.</b> Everything you save here goes to the Union database (Firebase) and appears for everyone instantly — no code, no rebuild. If the database rules are not opened yet, edits are kept on your device and the menu tells you exactly how to fix it.</p>
+      <p style="margin-top:6px">• <b>Pages:</b> create e.g. History, Structure, Constitution. They appear in the top menu automatically.<br>• <b>Leadership:</b> add a photo per leader, set post + status. <b>LEADER</b> = currently leading (red stamp), <b>OFFICIAL</b> = in office, <b>VETERAN</b> = former / honorary. Remove anyone with one click.<br>• <b>Photos:</b> picked files are shrunk in your browser and stored with the record; links work too.<br>• Keep the access code secret. Anyone with it can edit.</p>
     </div>
     <small id="mMsg"></small>
   </div>
@@ -224,7 +223,8 @@ const DEFAULTS = {
 let CONTENT = structuredClone(DEFAULTS);
 let UNSEALED = false;
 try { UNSEALED = sessionStorage.getItem("ussr_unsealed") === "1"; } catch(e) {}
-let FB = { ok:false, db:null, storage:null };
+let FB = { ok:false, db:null };
+let LAST_SAVE = { where:"local", error:null };
 
 async function sha256hex(s){
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
@@ -235,7 +235,6 @@ function initFirebase(){
   try{
     firebase.initializeApp(firebaseConfig);
     FB.db = firebase.database();
-    try { FB.storage = firebase.storage(); } catch(e) { FB.storage = null; }
     FB.ok = true;
     FB.db.ref(DB_PATH).on("value", snap => {
       const v = snap.val();
@@ -254,11 +253,22 @@ function normalize(v){
   if (Array.isArray(v.pages) && v.pages.length) c.pages = v.pages;
   return c;
 }
-function saveAll(){
+async function saveAll(){
   const payload = Object.assign({}, CONTENT, { savedAt: new Date().toISOString() });
-  if (FB.ok) return FB.db.ref(DB_PATH).set(payload);
   try { localStorage.setItem(LS_KEY, JSON.stringify(payload)); } catch(e) {}
-  return Promise.resolve();
+  if (FB.ok){
+    try { await FB.db.ref(DB_PATH).set(payload); LAST_SAVE = { where:"firebase", error:null }; }
+    catch(e){
+      LAST_SAVE = { where:"local", error:(e && e.code) || "PERMISSION_DENIED" };
+    }
+  } else {
+    LAST_SAVE = { where:"local", error:"NO_CONNECTION" };
+  }
+  return LAST_SAVE;
+}
+function savedMsg(action){
+  if (LAST_SAVE.where === "firebase") return action + " \u2014 live for everyone.";
+  return action + " \u2014 DATABASE LOCKED, kept on this device only. Fix: Firebase console \u2192 Realtime Database \u2192 Rules (see repo README), then save again.";
 }
 function loadLocal(){
   try{
@@ -427,7 +437,7 @@ $("pSave").onclick = async ()=>{
   p.title = $("pTitle").value.trim() || p.title;
   p.body = $("pBody").value;
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  await saveAll(); renderAll(); refreshPages(); say("Page saved — live for everyone.");
+  await saveAll(); renderAll(); refreshPages(); say(savedMsg("Page saved"));
 };
 $("pNew").onclick = async ()=>{
   const title = $("pTitle").value.trim();
@@ -476,7 +486,7 @@ function refreshLeaders(){
       if (b.dataset.a==="dn"){ CONTENT.leaders.splice(idx,1); CONTENT.leaders.splice(idx+1,0,l); }
       if (b.dataset.a==="up2"){ await uploadPhoto(d, l); return; }
       CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-      await saveAll(); renderAll(); refreshLeaders(); say("Leadership saved.");
+      await saveAll(); renderAll(); refreshLeaders(); say(savedMsg("Leadership saved"));
     });
     d.querySelectorAll("[data-f]").forEach(inp=>inp.onchange=()=>collectLeader(d,l));
     w.appendChild(d);
@@ -491,25 +501,43 @@ function collectLeader(d, l){
   l.bio = d.querySelector('[data-f="bio"]').value;
   l.img = d.querySelector('[data-f="img"]').value.trim();
 }
+function fileToPhoto(file){
+  /* Photos are shrunk in-browser and stored as text in the database —
+     no Storage bucket, no CORS, works from any host. */
+  return new Promise((resolve, reject)=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      const MAX = 512;
+      const k = Math.min(1, MAX / Math.max(img.width, img.height));
+      const w = Math.max(1, Math.round(img.width * k));
+      const h = Math.max(1, Math.round(img.height * k));
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL("image/jpeg", 0.82));
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error("bad image")); };
+    img.src = url;
+  });
+}
 async function uploadPhoto(d, l){
   collectLeader(d, l);
   const f = d.querySelector('[data-f="file"]').files[0];
   if (!f){ say("Pick a file first."); return; }
-  if (!FB.ok || !FB.storage){ say("Storage not ready — paste an image link instead."); return; }
-  say("Uploading…");
+  say("Shrinking photo…");
   try{
-    const ref = FB.storage.ref("ussrpage/leaders/" + (l.id || uid()) + "/" + f.name);
-    await ref.put(f);
-    l.img = await ref.getDownloadURL();
+    l.img = await fileToPhoto(f);
     d.querySelector('[data-f="img"]').value = l.img;
     CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-    await saveAll(); renderAll(); refreshLeaders(); say("Photo uploaded + saved.");
-  }catch(e){ say("Upload blocked by storage rules — see README. Paste a link instead."); }
+    await saveAll(); renderAll(); refreshLeaders(); say(savedMsg("Photo saved"));
+  }catch(e){ say("That file is not a readable image."); }
 }
 $("lAdd").onclick = ()=>{ CONTENT.leaders.push({ id: uid(), name:"New comrade", post:"NEW POST", postRu:"", rank:"★", bio:"", img:"", status:"OFFICIAL" }); refreshLeaders(); say("Added — fill the fields, then save leadership."); };
 $("lSave").onclick = async ()=>{
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  await saveAll(); renderAll(); say("Leadership saved — live for everyone.");
+  await saveAll(); renderAll(); say(savedMsg("Leadership saved"));
 };
 
 /* settings tab */
@@ -525,7 +553,7 @@ $("sSave").onclick = async ()=>{
     otherUrl:$("sOther").value, otherLabel:$("sOtherLabel").value,
     updated:new Date().toISOString().slice(0,10)
   });
-  await saveAll(); renderAll(); say("Settings saved.");
+  await saveAll(); renderAll(); say(savedMsg("Settings saved"));
 };
 function refreshAdmin(){ refreshPages(); refreshLeaders(); refreshSettings(); }
 
