@@ -3,498 +3,321 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>blank</title>
+<meta name="theme-color" content="#7a0f0f">
+<title>USSR // CENTRAL ALMANAC — Leaders, SSRs, Decrees</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{background:var(--bg,#fff);color:var(--ink,#111);font-family:var(--font,Georgia,'Times New Roman',serif);font-size:var(--fsize,17px);line-height:1.7;min-height:100vh}
-body.fade #page{animation:fadein .45s ease}
-@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-#page{max-width:var(--maxw,820px);margin:0 auto;padding:48px 24px 80px;min-height:90vh;word-wrap:break-word}
-#page .hint{color:#ccc;font-family:Arial,sans-serif;font-size:13px;text-align:center;margin-top:40vh}
-/* what the small-codes build */
-#page h1{font-size:1.9em;margin:1em 0 .4em;line-height:1.25;color:var(--hcolor,#111)}
-#page h2{font-size:1.5em;margin:1.1em 0 .4em;color:var(--hcolor,#111)}
-#page h3{font-size:1.2em;margin:1.1em 0 .4em;color:var(--hcolor,#111)}
-#page p{margin:.7em 0}
-#page a{color:var(--link,#0b4da2)}
-#page blockquote{border-left:4px solid #999;background:#f7f7f7;margin:14px 0;padding:10px 16px}
-#page code{background:#eee;padding:1px 6px;border-radius:3px;font-size:.88em}
-#page pre{background:#111;color:#eee;padding:14px;overflow:auto;font-size:13.5px;line-height:1.5}
-#page table{border-collapse:collapse;width:100%;margin:14px 0}
-#page table th,#page table td{border:1px solid #bbb;padding:8px;text-align:left}
-#page table th{background:#eee}
-#page img{max-width:100%;height:auto}
-.fig{border:1px solid #ccc;padding:8px;margin:16px auto;text-align:center;max-width:100%}
-.fig img{width:100%;display:block}
-.fig figcaption{font-size:14px;padding:8px 4px 2px;color:#555;font-style:italic}
-.sealbox{border:2px solid #111;background:#fafafa;padding:14px 16px;margin:16px 0}
-.sealbox h5{margin:0 0 6px;font-family:Arial,sans-serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
-.vidwrap{position:relative;padding-bottom:56.25%;height:0;margin:16px 0;background:#000}
-.vidwrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.stamp{display:inline-block;border:3px double #111;padding:6px 16px;font-family:Arial,sans-serif;font-weight:bold;letter-spacing:.15em;transform:rotate(-3deg);margin:8px 4px}
-.anim-glow{animation:tglow 2.4s ease-in-out infinite;font-weight:bold}
-@keyframes tglow{0%,100%{text-shadow:none}50%{text-shadow:0 0 14px #888}}
-.anim-marquee{display:block;overflow:hidden;white-space:nowrap;border-top:1px solid #111;border-bottom:1px solid #111;padding:8px 0;font-family:Arial,sans-serif}
-.anim-marquee span{display:inline-block;padding-left:100%;animation:marq 12s linear infinite}
-@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-100%)}}
-.anim-flicker{animation:flick 1.6s infinite}
-@keyframes flick{0%,100%{opacity:1}50%{opacity:.55}}
-.anim-wave span{display:inline-block;animation:wave 1.6s ease-in-out infinite}
-@keyframes wave{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.spoiler{border:1px solid #bbb;margin:12px 0}
-.spoiler summary{cursor:pointer;background:#111;color:#fff;padding:8px 12px;font-family:Arial,sans-serif;font-size:13px}
-.spoiler div{padding:10px 14px}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
-@media(max-width:640px){.cols{grid-template-columns:1fr}}
-.cols>div{border:1px solid #ccc;padding:12px 14px}
-.gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
-.gal img{width:100%;height:150px;object-fit:cover;border:1px solid #ccc}
-.bigbtn{display:inline-block;background:#111;color:#fff!important;padding:10px 22px;font-family:Arial,sans-serif;text-decoration:none;margin:6px 6px 6px 0}
-.orn-div{text-align:center;letter-spacing:.5em;margin:16px 0;color:#555}
-/* banner — built in the menu, shown on top of every page */
-.banner{margin:-48px -24px 26px;padding:30px 18px;background-size:cover;background-position:center}
-.ban-t{font-size:2em;font-weight:bold;line-height:1.2}
-.ban-s{opacity:.85;margin-top:6px}
-.ban-glow .ban-t{animation:tglow 2.4s ease-in-out infinite}
-/* the dot — the only thing on the page besides your words */
-#dot{position:fixed;right:10px;bottom:10px;width:14px;height:14px;border-radius:50%;background:#e3e3e3;border:1px solid #ccc;cursor:pointer;opacity:.7;z-index:50}
-#dot:hover{opacity:1;background:#999}
-/* editor menu — plain on purpose */
-#menu{position:fixed;inset:0;z-index:51;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);font-family:Arial,Helvetica,sans-serif}
-#menu.show{display:flex}
-#mbox{width:min(720px,94vw);max-height:92vh;overflow:auto;background:#fff;color:#111;border:1px solid #999;font-size:14px}
-#mbox h3{margin:0;padding:10px 14px;background:#f0f0f0;border-bottom:1px solid #ccc;font-size:14px;display:flex;justify-content:space-between;align-items:center}
-#mbox h4{margin:16px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#333;border-bottom:1px solid #ddd;padding-bottom:4px}
-#mbox .sec{padding:0 14px 14px}
-#mbox input[type=text],#mbox input[type=password],#mbox textarea,#mbox select{width:100%;padding:7px;border:1px solid #aaa;font-family:Arial,sans-serif;font-size:13px;margin:3px 0;color:#111;background:#fff}
-#mbox textarea{min-height:150px;font-family:Consolas,Menlo,monospace;font-size:12.5px}
-#mbox button{font-family:Arial,sans-serif;font-size:12.5px;padding:6px 10px;border:1px solid #888;background:#f4f4f4;color:#111;cursor:pointer;margin:2px 4px 2px 0}
-#mbox button:hover{background:#e2e2e2}
-#mbox button.primary{background:#111;color:#fff;border-color:#111}
-#mbox .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-#mbox small{color:#666}
-#mbox p.explain{font-size:13px;color:#333;line-height:1.6}
-/* help */
-#help{position:fixed;inset:0;z-index:52;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);font-family:Arial,Helvetica,sans-serif}
-#help.show{display:flex}
-#helpbox{width:min(760px,94vw);max-height:92vh;overflow:auto;background:#fff;border:1px solid #999;font-size:13.5px}
-#helpbox h3{margin:0;padding:10px 14px;background:#f0f0f0;border-bottom:1px solid #ccc;font-size:14px;display:flex;justify-content:space-between;align-items:center}
-#helpbox .sec{padding:0 14px 16px;line-height:1.65}
-#helpbox table{width:100%;border-collapse:collapse}
-#helpbox th,#helpbox td{border:1px solid #ccc;padding:7px;text-align:left;vertical-align:top}
-#helpbox th{background:#eee}
-#helpbox code{background:#111;color:#7bff9e;padding:1px 6px;border-radius:3px;white-space:nowrap}
+/* GOSPLAN BRUTALIST — SAME STOCK AS USSR-stock (LOCKED) */
+:root{
+  --red:#8a0f14; --red-dark:#4a0608; --red-bg:#7a0f0f;
+  --paper:#e8dcc6; --paper2:#d8cab0; --ink:#111; --muted:#5a5242; --border:#111;
+  --gold:#c9a227; --font-mono:'IBM Plex Mono',monospace; --font-display:'Playfair Display',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;color:var(--ink);background:var(--paper);font-family:var(--font-mono);line-height:1.45;font-size:13px;border-left:6px solid var(--red);border-right:6px solid var(--red)}
+@media(max-width:700px){body{border-left:3px solid var(--red);border-right:3px solid var(--red)}}
+a{color:var(--red);text-decoration:underline;text-underline-offset:2px}
+.hidden{display:none!important}
+.top-rule{height:32px;background:var(--red);color:#f5e6a3;display:flex;align-items:center;gap:12px;padding:0 12px;font:700 10px var(--font-mono);letter-spacing:.14em;text-transform:uppercase;border-bottom:3px solid #111;overflow:hidden;white-space:nowrap}
+.top-rule b{color:#fff;background:#111;padding:2px 6px}
+.ticker{overflow:hidden;white-space:nowrap;background:#111;color:#f5e6a3;border-bottom:3px solid var(--red);padding:6px 0;font:700 10px var(--font-mono);letter-spacing:.06em;text-transform:uppercase}
+.ticker span{display:inline-block;padding-left:100%;animation:ticker 45s linear infinite}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+.hdr{background:var(--paper);border-bottom:4px solid #111;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:10px 14px}
+@media(max-width:900px){.hdr{grid-template-columns:1fr;gap:8px}}
+.stamp{width:56px;height:56px;background:var(--red);border:3px solid #111;display:grid;place-items:center;color:var(--paper);font:900 20px var(--font-display);line-height:1;transform:rotate(-1deg);box-shadow:3px 3px 0 #111;text-align:center}
+.stamp small{font:700 7px var(--font-mono);display:block;letter-spacing:.1em;color:#f5e6a3}
+.brand h1{font:900 30px var(--font-display);letter-spacing:-.02em;line-height:.9;text-transform:uppercase}
+.brand h1 i{font-style:normal;background:var(--red);color:#fff;padding:0 6px}
+.brand p{font:600 10px var(--font-mono);color:var(--muted);margin-top:3px;letter-spacing:.06em;text-transform:uppercase}
+.nav{display:flex;flex-wrap:wrap;gap:6px}
+.nav button{appearance:none;background:#fff;border:2px solid #111;padding:7px 10px;font:700 10px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;box-shadow:2px 2px 0 #111}
+.nav button:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #111}
+.nav button.active{background:var(--red);color:#fff;border-color:#111}
+.nav a{border:2px solid #111;padding:7px 10px;font:700 10px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;background:#111;color:#f5e6a3;text-decoration:none;box-shadow:2px 2px 0 #111}
+.clock{border:2px solid #111;background:#111;color:#f5e6a3;padding:8px 10px;min-width:170px;text-align:right}
+.clock .t{font:700 14px var(--font-mono)}
+.clock .s{font:600 9px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;opacity:.8}
+.live{width:8px;height:8px;background:#3fa35a;border:1px solid #fff;display:inline-block;vertical-align:middle;margin-right:4px}
+.page{max-width:1280px;margin:0 auto;padding:14px 12px 30px}
+.kicker{font:700 10px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red);border-left:4px solid var(--red);padding-left:8px;margin-bottom:8px}
+h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;margin-bottom:6px}
+.card{background:#fff;border:3px solid #111;box-shadow:4px 4px 0 #111;margin-bottom:12px}
+.card-h{padding:8px 10px;background:var(--red-bg);color:#f5e6a3;border-bottom:3px solid #111;display:flex;align-items:center;justify-content:space-between;gap:10px;font:700 11px var(--font-mono);letter-spacing:.06em;text-transform:uppercase}
+.card-h small{font:600 9px var(--font-mono);opacity:.9;letter-spacing:.04em;text-transform:none}
+.card-b{padding:10px;background:var(--paper)}
+.grid{display:grid;gap:10px}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:1000px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3,.grid-2{grid-template-columns:1fr}}
+@media(max-width:600px){.grid-4{grid-template-columns:1fr}}
+.stat{background:#fff;border:2px solid #111;padding:10px;box-shadow:3px 3px 0 #111}
+.stat b{display:block;font:700 8px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid #111;padding-bottom:4px;margin-bottom:6px}
+.stat strong{display:block;font:800 20px var(--font-mono);line-height:1;letter-spacing:-.02em}
+.stat span{font:600 10px var(--font-mono);color:var(--muted)}
+.badge{display:inline-block;padding:2px 6px;border:2px solid #111;font:700 9px var(--font-mono);letter-spacing:.06em;text-transform:uppercase}
+.b-good{background:#b6e2b6;color:#111}.b-bad{background:#f0b0b0;color:#111}.b-warn{background:#f5e6a3;color:#111}.b-red{background:var(--red);color:#fff}
+.table-wrap{overflow:auto;border:2px solid #111;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px;background:#111;color:#f5e6a3;font:700 9px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;border-right:1px solid #333}
+td{padding:7px 8px;border-top:1px solid #111;border-right:1px solid #ddd;white-space:nowrap;font:500 12px var(--font-mono)}
+tbody tr:nth-child(even) td{background:var(--paper2)}
+.leader-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:1000px){.leader-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.leader-grid{grid-template-columns:1fr}}
+.leader{background:#fff;border:3px solid #111;box-shadow:4px 4px 0 #111;border-top:8px solid var(--red)}
+.leader.top{border-top-color:#111;background:#fff}
+.leader .ph{height:120px;border-bottom:3px solid #111;display:grid;place-items:center;background:repeating-linear-gradient(45deg,var(--paper) 0 12px,var(--paper2) 12px 24px);font:900 44px var(--font-display);color:var(--red)}
+.leader .lb{padding:10px}
+.leader .post{font:700 9px var(--font-mono);letter-spacing:.1em;color:#fff;background:#111;display:inline-block;padding:2px 6px;margin-bottom:6px}
+.leader .ru{font:600 9px var(--font-mono);color:var(--muted);letter-spacing:.08em}
+.leader h3{font:900 18px var(--font-display);text-transform:uppercase;line-height:1;margin:4px 0}
+.leader .rank{font:700 10px var(--font-mono);color:var(--red)}
+.leader p{font:500 11px var(--font-mono);margin-top:6px}
+.region-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:900px){.region-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.region-grid{grid-template-columns:1fr}}
+.region{background:#fff;border:2px solid #111;padding:10px;box-shadow:3px 3px 0 #111;border-left:6px solid var(--red)}
+.region h4{font:800 12px var(--font-mono);text-transform:uppercase}
+.region .meta{font:600 10px var(--font-mono);color:var(--muted);margin-top:2px}
+.region .res{font:600 10px var(--font-mono);margin-top:6px;line-height:1.6}
+.feed{border:2px solid #111;background:#fff}
+.feed-item{border-bottom:2px solid #111;padding:10px;display:grid;grid-template-columns:110px 1fr;gap:10px}
+.feed-item:last-child{border-bottom:0}
+.feed-date{font:700 10px var(--font-mono);background:#111;color:#f5e6a3;padding:4px 6px;text-align:center;height:fit-content}
+.hero{border:4px solid #111;background:#fff;box-shadow:6px 6px 0 #111;display:grid;grid-template-columns:1fr 300px;gap:0}
+@media(max-width:900px){.hero{grid-template-columns:1fr}}
+.hero-main{padding:16px}
+.hero-main h2{font-size:30px}
+.hero-side{background:var(--red-bg);color:#f5e6a3;border-left:4px solid #111;padding:14px;font-size:11px}
+@media(max-width:900px){.hero-side{border-left:0;border-top:4px solid #111}}
+.hero-side b{color:#fff}
+.seal{border:2px dashed #111;padding:8px;background:#fff;font:600 11px var(--font-mono)}
+code{background:#111;color:#f5e6a3;padding:1px 6px;font-size:11px}
+ol.steps{margin:8px 0 0 18px;font:600 12px var(--font-mono)}
+ol.steps li{margin:4px 0}
+.foot{margin-top:12px;border:2px solid #111;background:#fff;padding:8px;font:700 9px var(--font-mono);text-align:center;letter-spacing:.06em}
 </style>
-<style id="customCss"></style>
 </head>
 <body>
-<div id="page"></div>
-<div id="dot" title="menu (Ctrl+Shift+E)"></div>
-
-<div id="menu"><div id="mbox">
-  <h3><span>menu</span><span><button id="mClose">close</button></span></h3>
-  <div class="sec">
-    <h4>1 · unlock</h4>
-    <p class="explain">Only people with the secret code can change anything. Everyone else just reads. Type it once — it stays open until you close this tab.</p>
-    <div class="row"><input type="password" id="mCode" placeholder="secret code" style="flex:1;min-width:180px"><button class="primary" id="mUnlock">unlock</button><button id="mLock">lock</button></div>
-    <small id="mStatus">locked</small>
-    <h4>2 · pages</h4>
-    <p class="explain">Each page is its own address, like <b>#/Leaders</b>. Pick one to open it, or make a new one. Linking a word to a page that doesn't exist yet is fine — opening it later creates it.</p>
-    <div class="row"><select id="mList" style="flex:1;min-width:180px"></select><button id="mOpen">open</button><button id="mDelete">delete</button><button id="mDupe">duplicate</button></div>
-    <div class="row"><input type="text" id="mNew" placeholder="new page name…" style="flex:1;min-width:180px"><button class="primary" id="mCreate">create</button></div>
-    <h4>3 · write</h4>
-    <p class="explain">Write in the big box using the little codes below (or press <b>how to write</b> for the full list with examples). Press <b>save</b> and it appears on the white page instantly, and is remembered in this browser.</p>
-    <input type="text" id="mTitle" placeholder="page title">
-    <div class="row" id="mSnips"></div>
-    <textarea id="mBody" placeholder="write here…"></textarea>
-    <div class="row"><button class="primary" id="mSave">save</button><button id="mHelp">how to write</button></div>
-    <h4>4 · design — background, banner, colours, motion</h4>
-    <p class="explain">This changes how <b>every page</b> looks. Everything saves by itself as you change it. Easiest start: pick a ready look, then tweak it.</p>
-    <div class="row"><select id="dPreset" style="flex:1;min-width:180px"><option value="white">White (blank)</option><option value="paper">Old paper</option><option value="dark">Dark night</option><option value="red">Red banner</option></select><button id="dApplyPreset">use this look</button></div>
-    <p class="explain"><b>Background.</b> The colour behind everything. Tap the box or paste any colour code (search "colour picker" to find codes). A picture link is optional — leave it empty for plain colour.</p>
-    <div class="row"><input type="color" id="dBg" style="flex:0 0 46px;height:32px;padding:0"><input type="text" id="dBgT" placeholder="#ffffff" style="flex:1;min-width:110px"></div>
-    <div class="row"><input type="text" id="dBgImg" placeholder="background picture link (optional)"></div>
-    <p class="explain"><b>Words.</b> Text colour, link colour, heading colour, letter style, letter size, and how wide the page is.</p>
-    <div class="row"><input type="color" id="dInk" style="flex:0 0 46px;height:32px;padding:0" title="text"><input type="text" id="dInkT" placeholder="text #111111" style="flex:1;min-width:110px"><input type="color" id="dLink" style="flex:0 0 46px;height:32px;padding:0" title="links"><input type="text" id="dLinkT" placeholder="links #0b4da2" style="flex:1;min-width:110px"></div>
-    <div class="row"><input type="color" id="dH" style="flex:0 0 46px;height:32px;padding:0" title="headings"><input type="text" id="dHT" placeholder="headings #111111" style="flex:1;min-width:110px"></div>
-    <div class="row"><select id="dFont" style="flex:1;min-width:170px"><option value="Georgia,'Times New Roman',serif">Classic book letters</option><option value="Arial,Helvetica,sans-serif">Plain modern letters</option><option value="'Courier New',monospace">Typewriter letters</option><option value="'Times New Roman',serif">Newspaper letters</option></select><select id="dSize" style="flex:1;min-width:130px"><option value="15">small letters</option><option value="17">normal letters</option><option value="19">big letters</option><option value="21">huge letters</option></select><select id="dWidth" style="flex:1;min-width:130px"><option value="640">narrow page</option><option value="820">normal page</option><option value="1000">wide page</option></select></div>
-    <p class="explain"><b>Banner.</b> A big title bar on top of every page. Tick the box, write a title and a smaller line under it, pick its colours. It is the fastest way to make the place feel like yours.</p>
-    <div class="row"><label style="font-size:13px"><input type="checkbox" id="dBanOn" style="width:auto"> show banner</label><select id="dBanAlign" style="flex:1;min-width:130px"><option value="center">title in the middle</option><option value="left">title on the left</option><option value="right">title on the right</option></select><select id="dBanAnim" style="flex:1;min-width:130px"><option value="none">still title</option><option value="glow">glowing title</option></select></div>
-    <div class="row"><input type="text" id="dBanT" placeholder="banner title, e.g. Our Realm"></div>
-    <div class="row"><input type="text" id="dBanS" placeholder="smaller line under it (optional)"></div>
-    <div class="row"><input type="color" id="dBanBg" style="flex:0 0 46px;height:32px;padding:0" title="banner background"><input type="text" id="dBanBgT" placeholder="banner #111111" style="flex:1;min-width:110px"><input type="color" id="dBanTxt" style="flex:0 0 46px;height:32px;padding:0" title="banner text"><input type="text" id="dBanTxtT" placeholder="title #ffffff" style="flex:1;min-width:110px"></div>
-    <div class="row"><input type="text" id="dBanImg" placeholder="banner picture link (optional, covers the banner)"></div>
-    <p class="explain"><b>Motion.</b> Pages can fade in softly when opened. (Glowing, wavy, flickering and scrolling words from "how to write" always work.)</p>
-    <div class="row"><label style="font-size:13px"><input type="checkbox" id="dFade" style="width:auto"> pages fade in</label></div>
-    <p class="explain"><b>Extra code (optional).</b> Only if you know website code — it runs last and beats everything else.</p>
-    <textarea id="dCustom" style="min-height:70px" placeholder="e.g. .ban-t{ letter-spacing: 6px }"></textarea>
-    <h4>5 · keep it safe</h4>
-    <p class="explain"><b>Download backup</b> saves everything to a file. <b>Upload backup</b> puts it back (or moves it to another computer). <b>Wipe</b> deletes every page and returns to a blank.</p>
-    <div class="row"><button id="mExport">download backup</button><button id="mImportBtn">upload backup</button><input type="file" id="mImportFile" accept=".json" style="display:none"><button id="mWipe">wipe everything</button></div>
-    <small id="mMsg"></small>
+<div class="top-rule"><b>ЦК // CENTRAL COMMITTEE</b> <span>★ OFFICIAL ALMANAC ★ LEADERS ★ SSRs ★ DECREES ★</span> <span style="margin-left:auto" id="topStamp">STAMP № 001</span></div>
+<div class="ticker"><span id="tickerText">★ PRAVDA ★ Loading central directives… ★</span></div>
+<header class="hdr">
+  <div style="display:flex;gap:10px;align-items:center">
+    <div class="stamp">☭<small>CCCP</small></div>
+    <div class="brand"><h1><i>USSR</i> ALMANAC</h1><p id="brandSub">Official record — leaders • situation • decrees</p></div>
   </div>
-</div></div>
+  <nav class="nav" id="nav">
+    <button class="active" data-view="overview">OVERVIEW</button>
+    <button data-view="leaders">LEADERS</button>
+    <button data-view="ssrs">15 SSRs</button>
+    <button data-view="gov">GOVERNMENT</button>
+    <button data-view="decrees">DECREES</button>
+    <button data-view="join">JOIN</button>
+    <a href="https://ussr-stock.vercel.app" target="_blank" rel="noopener">★ ECONOMY →</a>
+  </nav>
+  <div class="clock"><div class="t" id="clock">--:-- MSK</div><div class="s"><span class="live"></span><span id="genAt">CENTRAL ARCHIVE</span></div></div>
+</header>
 
-<div id="help"><div id="helpbox">
-  <h3><span>how to write — every little code</span><span><button id="hClose">close</button></span></h3>
-  <div class="sec">
-    <p>Type normally. Blank line = new paragraph. These little codes do the rest. Copy them exactly, changing only the words inside.</p>
-    <table>
-      <tr><th>you want</th><th>you type</th></tr>
-      <tr><td>big heading</td><td><code># My heading</code></td></tr>
-      <tr><td>smaller heading</td><td><code>## Smaller</code> or <code>### Even smaller</code></td></tr>
-      <tr><td>bold</td><td><code>**these words**</code></td></tr>
-      <tr><td>italic</td><td><code>*these words*</code></td></tr>
-      <tr><td>underline</td><td><code>__these words__</code></td></tr>
-      <tr><td>crossed out</td><td><code>~~these words~~</code></td></tr>
-      <tr><td>link to another page here</td><td><code>[[Leaders]]</code> — clicking it opens that page</td></tr>
-      <tr><td>link with own words</td><td><code>[[Leaders|our great leaders]]</code></td></tr>
-      <tr><td>link to another site</td><td><code>[click here](https://example.com)</code></td></tr>
-      <tr><td>picture</td><td><code>![what it shows](https://…/photo.jpg)</code></td></tr>
-      <tr><td>picture in a frame</td><td><code>{{img|https://…/photo.jpg|what it shows}}</code></td></tr>
-      <tr><td>many pictures</td><td><code>{{gallery|link1, link2, link3}}</code></td></tr>
-      <tr><td>coloured words (any colour code)</td><td><code>{{color|#c90000|red words}}</code> — find colours by searching "colour picker"</td></tr>
-      <tr><td>words on a coloured background</td><td><code>{{bg|#111111|white on dark}}</code></td></tr>
-      <tr><td>huge / tiny words</td><td><code>{{big|WOW}}</code> or <code>{{small|a whisper}}</code></td></tr>
-      <tr><td>centred words</td><td><code>{{center|these sit in the middle}}</code></td></tr>
-      <tr><td>box with a title</td><td><code>{{box|My title|the words inside…}}</code></td></tr>
-      <tr><td>glowing words</td><td><code>{{anim|glow|shiny words}}</code></td></tr>
-      <tr><td>scrolling banner</td><td><code>{{anim|marquee|news flash}}</code></td></tr>
-      <tr><td>flickering words</td><td><code>{{anim|flicker|spooky words}}</code></td></tr>
-      <tr><td>bouncing letters</td><td><code>{{anim|wave|wavy words}}</code></td></tr>
-      <tr><td>stamp</td><td><code>{{stamp|APPROVED}}</code></td></tr>
-      <tr><td>video (youtube link or .mp4 link)</td><td><code>{{video|https://www.youtube.com/watch?v=…}}</code></td></tr>
-      <tr><td>sound</td><td><code>{{audio|https://…/song.mp3}}</code></td></tr>
-      <tr><td>two columns side by side</td><td><code>{{columns|left words /// right words}}</code></td></tr>
-      <tr><td>quote</td><td><code>{{quote|the wise words|— who said it}}</code></td></tr>
-      <tr><td>button to a page</td><td><code>{{button|Meet the leaders|Leaders}}</code></td></tr>
-      <tr><td>hidden text (click to reveal)</td><td><code>{{spoiler|the secret…}}</code></td></tr>
-      <tr><td>fancy divider line</td><td><code>{{hr_star}}</code> or just <code>---</code> on its own line</td></tr>
-      <tr><td>bullet list</td><td><code>- first thing</code> on each line</td></tr>
-      <tr><td>numbered list</td><td><code>1. first thing</code> on each line</td></tr>
-      <tr><td>quote block</td><td><code>&gt; the quoted words</code></td></tr>
-      <tr><td>table</td><td><code>| Name | Year |</code> then <code>|---|---|</code> then <code>| Ivan | 1861 |</code> — one line per row</td></tr>
-      <tr><td>computer code</td><td><code>`code`</code> or a block between lines of <code>```</code></td></tr>
-    </table>
-    <p><b>Pages are linked by name.</b> Write <code>[[Dragons]]</code>, click it, create that page, write about dragons. That is how the whole thing grows — page by page, from nothing.</p>
+<div class="page">
+
+  <!-- OVERVIEW -->
+  <div id="view-overview">
+    <div class="hero">
+      <div class="hero-main">
+        <div class="kicker">Situation report — <span id="sitDate">—</span></div>
+        <h2 id="sitHead">THE UNION STANDS</h2>
+        <p class="mono" id="sitSummary" style="font-size:12px;margin-top:6px">Loading…</p>
+        <div class="grid grid-2" style="margin-top:10px" id="statusLines"></div>
+        <div class="seal" style="margin-top:10px" id="planBox">FIVE-YEAR PLAN — loading…</div>
+      </div>
+      <div class="hero-side">
+        <div style="font:700 10px var(--font-mono);letter-spacing:.12em">★ STATE AT A GLANCE</div>
+        <div style="margin-top:8px;line-height:1.7" id="glance">
+          15 SSRs • 147 EV<br>6 STATE ENTERPRISES<br>GOSBANK VAULT<br>1959 WORLD THEATRE
+        </div>
+        <div style="margin-top:10px;border-top:1px solid #f5e6a3;padding-top:8px">
+          <b>ECONOMY IS LIVE SEPARATELY:</b><br>
+          GSI • inflation • gold • companies • food security mirror the Discord bot.<br>
+          <a href="https://ussr-stock.vercel.app" target="_blank" rel="noopener" style="color:#ffe9a8">→ OPEN RED STAR EXCHANGE</a><br>
+          <a href="https://github.com/HyawiiGithub/USSR-stock" target="_blank" rel="noopener" style="color:#ffe9a8">→ USSR-stock REPO</a>
+        </div>
+        <div style="margin-top:10px;border-top:1px solid #f5e6a3;padding-top:8px">
+          <b>UPDATES LIVE HERE:</b><br>
+          Every decree below is published from <code>updates.json</code> in this repo.<br>
+          <a href="https://github.com/HyawiiGithub/ussrpage" target="_blank" rel="noopener" style="color:#ffe9a8">→ ussrpage REPO</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-4" style="margin-top:10px" id="overviewStats"></div>
+
+    <div class="card" style="margin-top:10px"><div class="card-h"><span>★ LATEST DECREES — STRAIGHT FROM THE KREMLIN WALL</span><small id="decCount">—</small></div>
+      <div class="card-b"><div class="feed" id="latestFeed"></div></div></div>
   </div>
-</div></div>
+
+  <!-- LEADERS -->
+  <div id="view-leaders" class="hidden">
+    <div class="kicker">Central Committee — who commands what</div>
+    <h2>LEADERSHIP OF THE UNION</h2>
+    <p class="mono" style="font-size:11px;color:var(--muted)">To change a name: edit <code>data.json → leadership[]</code> in the ussrpage repo, commit, done. No rebuild.</p>
+    <div class="leader-grid" id="leaderGrid" style="margin-top:10px"></div>
+  </div>
+
+  <!-- SSRs -->
+  <div id="view-ssrs" class="hidden">
+    <div class="kicker">Fifteen republics — one plan</div>
+    <h2>THE 15 SOVIET SOCIALIST REPUBLICS</h2>
+    <div class="card" style="margin-top:10px"><div class="card-h"><span>WORK ZONES → RESOURCES</span><small>per-SSR spawn, like real Soviet geology</small></div>
+      <div class="card-b"><div class="table-wrap"><table><thead><tr><th>SSR</th><th>ZONE</th><th>RESOURCES</th><th>NOTE</th></tr></thead><tbody id="ssrTable"></tbody></table></div>
+      <div class="mono" style="font-size:10px;color:var(--muted);margin-top:6px">Your <code>-work</code> rolls only your SSR's resources. Rarity is per-SSR (e.g. Gold rare in Russia, common in Nuristan).</div></div></div>
+    <div class="region-grid" id="ssrGrid" style="margin-top:10px"></div>
+  </div>
+
+  <!-- GOVERNMENT -->
+  <div id="view-gov" class="hidden">
+    <div class="kicker">How the machine runs</div>
+    <h2>GOVERNMENT &amp; INSTITUTIONS</h2>
+    <div class="grid grid-2" style="margin-top:10px">
+      <div class="card"><div class="card-h"><span>MINISTRIES / ORGANS</span></div><div class="card-b"><div class="table-wrap"><table><thead><tr><th>ORGAN</th><th>JOB</th></tr></thead><tbody id="minTable"></tbody></table></div></div></div>
+      <div class="card"><div class="card-h"><span>STATE ENTERPRISES (6)</span><small>live on USSR-stock</small></div><div class="card-b"><div class="table-wrap"><table><thead><tr><th>ENTERPRISE</th><th>TICKER</th><th>HQ SSR</th></tr></thead><tbody id="compTable"></tbody></table></div>
+        <div class="mono" style="font-size:10px;color:var(--muted);margin-top:6px">Share prices, market cap and wages mirror <code>economy_data.json</code> on <a href="https://ussr-stock.vercel.app">USSR-stock</a>.</div></div></div>
+    </div>
+    <div class="grid grid-2" style="margin-top:10px">
+      <div class="card"><div class="card-h"><span>ELECTORAL SYSTEM</span><small>SSR Electoral College</small></div><div class="card-b mono" style="font-size:11px;line-height:1.7">
+        15 SSRs • <b>147 EV total • 74 to win</b><br>Winner per SSR takes ALL its EV.<br>1 vote per IP + Discord ID.<br>Must confirm in Discord: <code>!confirm CODE</code><br>Pending votes do NOT count.
+      </div></div>
+      <div class="card"><div class="card-h"><span>MONEY &amp; ARMY</span><small>Gosbank → Front</small></div><div class="card-b mono" style="font-size:11px;line-height:1.7">
+        <b>GOSBANK:</b> state vault, 90% of corporate tax.<br><b>CENTRAL BANK:</b> interest / prime / discount / reserve req.<br><b>PROCUREMENT:</b> <code>-offerarms</code> → Primary approves → Gosbank pays corp.<br><b>1959 WORLD:</b> trade income → Gosbank every tick. Unpaid defence bills cut readiness.
+      </div></div>
+    </div>
+    <div class="card" style="margin-top:10px"><div class="card-h"><span>FUNDAMENTAL LAWS</span><small>five articles</small></div>
+      <div class="card-b"><div class="table-wrap"><table><thead><tr><th>№</th><th>LAW</th><th>MEANING</th></tr></thead><tbody id="lawTable"></tbody></table></div></div></div>
+  </div>
+
+  <!-- DECREES -->
+  <div id="view-decrees" class="hidden">
+    <div class="kicker">Published record — newest first</div>
+    <h2>DECREES &amp; SITUATION UPDATES</h2>
+    <p class="mono" style="font-size:11px;color:var(--muted)">To publish: add an entry to <code>updates.json</code> in <a href="https://github.com/HyawiiGithub/ussrpage">HyawiiGithub/ussrpage</a>, commit → GitHub Pages rebuilds → appears here + in the ticker. Newest first.</p>
+    <div class="card" style="margin-top:10px"><div class="card-h"><span>FULL CHRONICLE</span><small id="decCount2">—</small></div>
+      <div class="card-b"><div class="feed" id="fullFeed"></div></div></div>
+  </div>
+
+  <!-- JOIN -->
+  <div id="view-join" class="hidden">
+    <div class="kicker">Service to the Union</div>
+    <h2>JOIN &amp; SERVE</h2>
+    <div class="grid grid-2" style="margin-top:10px">
+      <div class="card"><div class="card-h"><span>ENLISTMENT STEPS</span></div><div class="card-b"><ol class="steps" id="joinSteps"></ol></div></div>
+      <div class="card"><div class="card-h"><span>FIELD COMMANDS</span><small>Discord bot</small></div><div class="card-b"><div class="table-wrap"><table><thead><tr><th>ORDER</th></tr></thead><tbody id="cmdTable"></tbody></table></div></div></div>
+    </div>
+    <div class="card" style="margin-top:10px"><div class="card-h"><span>SISTER SYSTEM — ECONOMY</span></div><div class="card-b mono" style="font-size:11px;line-height:1.7">
+      Numbers live on <a href="https://ussr-stock.vercel.app">USSR-stock (Red Star Exchange)</a> — GSI, inflation, gold, companies, world map, production.<br>
+      Code: <a href="https://github.com/HyawiiGithub/USSR-stock">github.com/HyawiiGithub/USSR-stock</a> • This almanac: <a href="https://github.com/HyawiiGithub/ussrpage">github.com/HyawiiGithub/ussrpage</a>
+    </div></div>
+  </div>
+
+  <div class="foot">USSR CENTRAL ALMANAC — STAMP <span id="footStamp">№ 001</span> // EDIT <code>data.json</code> + <code>updates.json</code> → COMMIT → PUBLISHED // <a href="https://github.com/HyawiiGithub/ussrpage">ussrpage</a> • <a href="https://github.com/HyawiiGithub/USSR-stock">USSR-stock</a> • <a href="https://ussr-stock.vercel.app">ECONOMY LIVE</a></div>
+</div>
 
 <script>
 "use strict";
-/* The secret code itself is NOWHERE in this file — only its salted
-   SHA-256 fingerprint. To set a new permanent code for hosting, make
-   one in the menu (there is no panel for it now: hash it yourself or
-   ask), then replace ADMIN_HASH below with the fingerprint. */
-const SALT = "XIX-CENTURY-ARCHIVE::";
-const ADMIN_HASH = "705a6a215d96281dd697e068df498c99357da464f7d78b56e8ceba206d13d938";
-const LS_PAGES="grand_archive_pages_v2_blank", LS_HASH="grand_archive_hash_v1", LS_DESIGN="blank_design_v1";
 const $=id=>document.getElementById(id);
-const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
-function sha256ascii(str){
-  function rr(v,a){return (v>>>a)|(v<<(32-a));}
-  var maxWord=Math.pow(2,32), result='';
-  var words=[], bitLen=str.length*8;
-  var hash=sha256ascii.h=sha256ascii.h||[], k=sha256ascii.k=sha256ascii.k||[];
-  var prime=2, cnt=0;
-  if(!k.length){for(var i=0;cnt<64;i++){var isP=true;for(var f=2;f*f<=prime;f++){if(prime%f===0){isP=false;break;}}if(isP){if(cnt<8)hash[cnt]=Math.floor(Math.pow(2,32)*((prime-0.5)**(1/3)%1));k[cnt++]=Math.floor(Math.pow(2,32)*((prime-0.5)**(1/2)%1));}prime++;}}
-  str+='\x80';while(str.length%64-56)str+='\x00';
-  for(var i2=0;i2<str.length;i2++){var j=str.charCodeAt(i2);if(j>>8)return;words[i2>>2]|=j<<((3-i2)%4)*8;}
-  words[words.length]=(bitLen/maxWord)|0;words[words.length]=bitLen;
-  for(var j2=0;j2<words.length;){var w=words.slice(j2,j2+=16),ohash=hash;hash=hash.slice(0,8);
-    for(var i3=0;i3<64;i3++){var w15=w[i3-15],w2=w[i3-2],a=hash[0],e=hash[4];
-      var t1=hash[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i3]
-        +(w[i3]=(i3<16)?w[i3]:(w[i3-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i3-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
-      var t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
-      hash=[(t1+t2)|0].concat(hash);hash[4]=(hash[4]+t1)|0;}
-    for(var i4=0;i4<8;i4++)hash[i4]=(hash[i4]+ohash[i4])|0;}
-  for(var i5=0;i5<8;i5++){for(var j3=3;j3+1;j3--){var b=(hash[i5]>>(j3*8))&255;result+=((b<16)?0:'')+b.toString(16);}}
-  return result;
-}
-async function sha256hex(s){
+// Fallback embedded (used when opened via file:// or fetch blocked)
+const FALLBACK_DATA = null; // loaded from data.json at runtime
+const FALLBACK_UPDATES = [
+  {date:"2026-09-27",tag:"DECREE",title:"USSRPAGE ALMANAC FOUNDED",body:"Official record opened. Leaders, SSRs, decrees published here."}
+];
+
+let DATA=null, UPDATES=[];
+
+async function loadJSON(path, fallback){
   try{
-    if(window.crypto&&crypto.subtle&&window.isSecureContext!==false){
-      const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
-      return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,"0")).join("");
-    }
-  }catch(e){}
-  return sha256ascii(s);
-}
-function activeHash(){ try{const o=localStorage.getItem(LS_HASH); if(o&&/^[0-9a-f]{64}$/.test(o))return o;}catch(e){} return ADMIN_HASH; }
-let UNSEALED = false;
-try{UNSEALED = sessionStorage.getItem("grand_unsealed")==="1";}catch(e){}
-async function verifyCode(code){ const h=await sha256hex(SALT+code.trim()); const a=activeHash();
-  if(h.length!==a.length)return false; let d=0; for(let i=0;i<h.length;i++)d|=(h.charCodeAt(i)^a.charCodeAt(i)); return d===0; }
-
-let PAGES=[];
-try{const r=localStorage.getItem(LS_PAGES); PAGES=r?JSON.parse(r):[]; if(!Array.isArray(PAGES))PAGES=[];}catch(e){PAGES=[];}
-function savePages(){ try{localStorage.setItem(LS_PAGES,JSON.stringify(PAGES));}catch(e){} }
-
-/* ---------- design: background, banner, colours, motion (applies to every page) ---------- */
-const LOOKS={
- white:{bg:"#ffffff",ink:"#111111",link:"#0b4da2",hcolor:"#111111",font:"Georgia,'Times New Roman',serif",fsize:"17",maxw:"820",bannerOn:"0",bannerTitle:"",bannerSub:"",bannerBg:"#111111",bannerTxt:"#ffffff",bannerImg:"",bannerAlign:"center",bannerAnim:"none",fade:"1",custom:""},
- paper:{bg:"#f4ecd8",ink:"#2b2118",link:"#7a0c0c",hcolor:"#3c1e0d",font:"Georgia,'Times New Roman',serif",fsize:"18",maxw:"820",bannerOn:"1",bannerTitle:"",bannerSub:"",bannerBg:"#3c1e0d",bannerTxt:"#f4ecd8",bannerImg:"",bannerAlign:"center",bannerAnim:"none",fade:"1",custom:""},
- dark:{bg:"#141414",ink:"#e8e8e8",link:"#7ab8ff",hcolor:"#ffffff",font:"Arial,Helvetica,sans-serif",fsize:"16",maxw:"820",bannerOn:"1",bannerTitle:"",bannerSub:"",bannerBg:"#000000",bannerTxt:"#ffffff",bannerImg:"",bannerAlign:"center",bannerAnim:"glow",fade:"1",custom:""},
- red:{bg:"#ffffff",ink:"#1c0a0a",link:"#a31616",hcolor:"#7a0c0c",font:"Georgia,'Times New Roman',serif",fsize:"17",maxw:"900",bannerOn:"1",bannerTitle:"",bannerSub:"",bannerBg:"#7a0c0c",bannerTxt:"#ffe9a8",bannerImg:"",bannerAlign:"center",bannerAnim:"none",fade:"1",custom:""}
-};
-let DESIGN=Object.assign({},LOOKS.white,{bgImg:""});
-try{const d=localStorage.getItem(LS_DESIGN); if(d)DESIGN=Object.assign(DESIGN,JSON.parse(d));}catch(e){}
-function saveDesign(){ try{localStorage.setItem(LS_DESIGN,JSON.stringify(DESIGN));}catch(e){} }
-function applyDesign(){
-  const r=document.documentElement.style;
-  r.setProperty("--bg",DESIGN.bg||"#fff");r.setProperty("--ink",DESIGN.ink||"#111");
-  r.setProperty("--link",DESIGN.link||"#0b4da2");r.setProperty("--hcolor",DESIGN.hcolor||DESIGN.ink||"#111");
-  r.setProperty("--font",DESIGN.font||"Georgia,'Times New Roman',serif");
-  r.setProperty("--fsize",(DESIGN.fsize||"17")+"px");r.setProperty("--maxw",(DESIGN.maxw||"820")+"px");
-  if(DESIGN.bgImg&&DESIGN.bgImg.trim()){document.body.style.backgroundImage="url('"+DESIGN.bgImg.trim().replace(/'/g,"")+"')";document.body.style.backgroundSize="cover";document.body.style.backgroundAttachment="fixed";document.body.style.backgroundPosition="center";}
-  else{document.body.style.backgroundImage="";document.body.style.backgroundSize="";document.body.style.backgroundAttachment="";document.body.style.backgroundPosition="";}
-  document.body.classList.toggle("fade",DESIGN.fade==="1");
-  const cc=$("customCss"); if(cc)cc.textContent=DESIGN.custom||"";
-}
-function bannerHTML(){
-  if(DESIGN.bannerOn!=="1")return "";
-  const t=(DESIGN.bannerTitle||"").trim(), s=(DESIGN.bannerSub||"").trim();
-  if(!t&&!s)return "";
-  let st='background-color:'+(DESIGN.bannerBg||"#111")+';color:'+(DESIGN.bannerTxt||"#fff")+';text-align:'+(DESIGN.bannerAlign||"center")+';';
-  if(DESIGN.bannerImg&&DESIGN.bannerImg.trim())st+='background-image:url(\''+DESIGN.bannerImg.trim().replace(/'/g,"")+'\');';
-  const anim=(DESIGN.bannerAnim==="glow")?' ban-glow':'';
-  return '<header class="banner'+anim+'" style="'+st+'">'+(t?'<div class="ban-t">'+esc(t)+'</div>':'')+(s?'<div class="ban-s">'+esc(s)+'</div>':'')+'</header>';
+    const r=await fetch(path,{cache:"no-store"});
+    if(!r.ok) throw 0;
+    return await r.json();
+  }catch(e){ return fallback; }
 }
 
-/* ---------- the little codes ---------- */
-function inlineFmt(s){
-  s=s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,(m,alt,url)=>'<div class="fig"><img src="'+esc(url.trim())+'" alt="'+esc(alt)+'" loading="lazy" onerror="this.style.display=\'none\'"><figcaption>'+esc(alt)+'</figcaption></div>');
-  s=s.replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g,(m,p,l)=>'<a href="#/'+encodeURIComponent(p.trim())+'">'+esc(l.trim())+'</a>');
-  s=s.replace(/\[\[([^\]]+)\]\]/g,(m,p)=>'<a href="#/'+encodeURIComponent(p.trim())+'">'+esc(p.trim())+'</a>');
-  s=s.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,(m,l,u)=>'<a href="'+esc(u.trim())+'" target="_blank" rel="noopener">'+esc(l)+'</a>');
-  s=s.replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
-  s=s.replace(/(^|[^*])\*([^*\n]+)\*/g,"$1<i>$2</i>");
-  s=s.replace(/__([^_]+)__/g,"<u>$1</u>");
-  s=s.replace(/~~([^~]+)~~/g,"<s>$1</s>");
-  s=s.replace(/`([^`\n]+)`/g,"<code>$1</code>");
-  return s;
-}
-function ytEmbed(u){
-  let m=u.match(/v=([A-Za-z0-9_-]{6,})/)||u.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/)||u.match(/embed\/([A-Za-z0-9_-]{6,})/);
-  return m?m[1]:null;
-}
-function renderCustom(s){
-  let out=s;
-  out=out.replace(/\{\{hr_star\}\}/g,'<div class="orn-div">★ ❖ ★</div>');
-  out=out.replace(/\{\{star\}\}/g,'<span>★</span>');
-  out=out.replace(/\{\{img\|([^|{}]+)\|([^}{]*)\}\}/g,(m,u,c)=>'<div class="fig"><img src="'+esc(u.trim())+'" alt="'+esc(c.trim())+'" loading="lazy" onerror="this.parentElement.style.display=\'none\'">'+(c.trim()?'<figcaption>'+inlineFmt(esc(c.trim()))+'</figcaption>':'')+'</div>');
-  out=out.replace(/\{\{img\|([^|{}]+)\}\}/g,(m,u)=>'<div class="fig"><img src="'+esc(u.trim())+'" loading="lazy" onerror="this.parentElement.style.display=\'none\'"></div>');
-  out=out.replace(/\{\{gallery\|([^}{]+)\}\}/g,(m,l)=>{const urls=l.split(",").map(x=>x.trim()).filter(Boolean);
-    return '<div class="gal">'+urls.map(u=>'<img src="'+esc(u)+'" loading="lazy" onerror="this.style.display=\'none\'">').join("")+'</div>';});
-  out=out.replace(/\{\{video\|([^}{]+)\}\}/g,(m,u)=>{u=u.trim();const id=ytEmbed(u);
-    if(id)return '<div class="vidwrap"><iframe src="https://www.youtube.com/embed/'+id+'" allowfullscreen loading="lazy"></iframe></div>';
-    if(/\.(mp4|webm|ogg)(\?|$)/i.test(u))return '<video controls style="width:100%"><source src="'+esc(u)+'"></video>';
-    return '<div class="vidwrap"><iframe src="'+esc(u)+'" allowfullscreen loading="lazy"></iframe></div>';});
-  out=out.replace(/\{\{audio\|([^}{]+)\}\}/g,(m,u)=>'<audio controls style="width:100%;margin:12px 0" src="'+esc(u.trim())+'"></audio>');
-  out=out.replace(/\{\{color\|([^|{}]+)\|([^}{]+)\}\}/g,(m,c,t)=>'<span style="color:'+esc(c.trim())+'">'+inlineFmt(t)+'</span>');
-  out=out.replace(/\{\{bg\|([^|{}]+)\|([^}{]+)\}\}/g,(m,c,t)=>'<span style="background:'+esc(c.trim())+';color:#fff;padding:1px 7px;border-radius:2px">'+inlineFmt(t)+'</span>');
-  out=out.replace(/\{\{big\|([^}{]+)\}\}/g,(m,t)=>'<span style="font-size:1.5em;font-weight:bold">'+inlineFmt(t)+'</span>');
-  out=out.replace(/\{\{small\|([^}{]+)\}\}/g,(m,t)=>'<small>'+inlineFmt(t)+'</small>');
-  out=out.replace(/\{\{center\|([^}{]+)\}\}/g,(m,t)=>'<div style="text-align:center">'+inlineFmt(t)+'</div>');
-  out=out.replace(/\{\{right\|([^}{]+)\}\}/g,(m,t)=>'<div style="text-align:right">'+inlineFmt(t)+'</div>');
-  out=out.replace(/\{\{stamp\|([^}{]+)\}\}/g,(m,t)=>'<span class="stamp">'+esc(t.trim())+'</span>');
-  out=out.replace(/\{\{box\|([^|{}]+)\|([^}{]+)\}\}/g,(m,ti,b)=>'<div class="sealbox"><h5>'+inlineFmt(ti.trim())+'</h5><div>'+inlineFmt(b.trim())+'</div></div>');
-  out=out.replace(/\{\{anim\|(glow|marquee|flicker|wave)\|([^}{]+)\}\}/g,(m,k,t)=>{
-    if(k==="marquee")return '<div class="anim-marquee"><span>'+esc(t.trim())+' &nbsp; ★ &nbsp; '+esc(t.trim())+'</span></div>';
-    if(k==="wave"){const ch=[...t.trim()].map((c,i)=>'<span style="animation-delay:'+(i*0.07)+'s">'+esc(c)+'</span>').join("");return '<span class="anim-wave">'+ch+'</span>';}
-    return '<span class="anim-'+k+'">'+inlineFmt(t)+'</span>';});
-  out=out.replace(/\{\{quote\|([^|{}]+)\|([^}{]*)\}\}/g,(m,t,a)=>'<blockquote>'+inlineFmt(t.trim())+(a.trim()?'<br><b>'+inlineFmt(a.trim())+'</b>':'')+'</blockquote>');
-  out=out.replace(/\{\{quote\|([^}{]+)\}\}/g,(m,t)=>'<blockquote>'+inlineFmt(t.trim())+'</blockquote>');
-  out=out.replace(/\{\{columns\|([^}{]+)\}\}/g,(m,t)=>{const p=t.split("///");const l=p[0]||"",r=p[1]||"";
-    return '<div class="cols"><div>'+inlineFmt(l.trim())+'</div><div>'+inlineFmt(r.trim())+'</div></div>';});
-  out=out.replace(/\{\{button\|([^|{}]+)\|([^}{]+)\}\}/g,(m,l,pg)=>'<a class="bigbtn" href="#/'+encodeURIComponent(pg.trim())+'">'+esc(l.trim())+'</a>');
-  out=out.replace(/\{\{spoiler\|([^}{]+)\}\}/g,(m,t)=>'<details class="spoiler"><summary>hidden — click to reveal</summary><div>'+inlineFmt(t.trim())+'</div></details>');
-  return out;
-}
-function renderBody(src){
-  const htmlBlocks=[];
-  src=String(src||"");
-  src=src.replace(/```html([\s\S]*?)```/gi,(m,c)=>{htmlBlocks.push(c);return "\u0000HTML"+(htmlBlocks.length-1)+"\u0000";});
-  const codeBlocks=[];
-  src=src.replace(/```([\s\S]*?)```/g,(m,c)=>{codeBlocks.push(c.replace(/^\n/,""));return "\u0000CODE"+(codeBlocks.length-1)+"\u0000";});
-  let t=esc(src);
-  t=renderCustom(t);
-  const lines=t.split("\n");
-  let html="",inUL=false,inOL=false,para=[];
-  const flushPara=()=>{if(para.length){html+="<p>"+para.join("<br>")+"</p>";para=[];}};
-  const closeLists=()=>{if(inUL){html+="</ul>";inUL=false;}if(inOL){html+="</ol>";inOL=false;}};
-  let i=0;
-  while(i<lines.length){
-    const ln=lines[i], tr=ln.trim();
-    if(tr.startsWith("\u0000HTML")){flushPara();closeLists();const n=+tr.replace(/\D/g,"");html+=htmlBlocks[n]||"";i++;continue;}
-    if(tr.startsWith("\u0000CODE")){flushPara();closeLists();const n=+tr.replace(/\D/g,"");html+="<pre>"+esc(codeBlocks[n]||"")+"</pre>";i++;continue;}
-    if(/^(---|\*\*\*|___)\s*$/.test(tr)){flushPara();closeLists();html+='<div class="orn-div">★ ❖ ★</div>';i++;continue;}
-    let hm=tr.match(/^(#{1,3})\s+(.*)/);
-    if(hm){flushPara();closeLists();const lv=hm[1].length;html+="<h"+lv+">"+inlineFmt(hm[2])+"</h"+lv+">";i++;continue;}
-    if(/^\|.*\|\s*$/.test(tr)&&i+1<lines.length&&/^[\s|:\-]+\|?\s*$/.test(lines[i+1].trim())&&lines[i+1].includes("-")){
-      flushPara();closeLists();
-      const head=tr.split("|").map(x=>x.trim()).filter(Boolean);
-      html+="<table><tr>"+head.map(h=>"<th>"+inlineFmt(h)+"</th>").join("")+"</tr>";
-      i+=2;
-      while(i<lines.length&&/^\|.*\|\s*$/.test(lines[i].trim())){const cells=lines[i].trim().split("|").map(x=>x.trim()).filter(Boolean);
-        html+="<tr>"+cells.map(c=>"<td>"+inlineFmt(c)+"</td>").join("")+"</tr>";i++;}
-      html+="</table>";continue;}
-    if(/^&gt;\s?/.test(tr)){flushPara();closeLists();let q=[];while(i<lines.length&&/^&gt;\s?/.test(lines[i].trim())){q.push(lines[i].trim().replace(/^&gt;\s?/,""));i++;}
-      html+="<blockquote>"+inlineFmt(q.join("<br>"))+"</blockquote>";continue;}
-    if(/^(\d+)\.\s+/.test(tr)){flushPara();if(inUL){html+="</ul>";inUL=false;}if(!inOL){html+="<ol>";inOL=true;}
-      html+="<li>"+inlineFmt(tr.replace(/^\d+\.\s+/,""))+"</li>";i++;
-      if(i>=lines.length||!/^\d+\.\s+/.test(lines[i].trim())){html+="</ol>";inOL=false;}continue;}
-    if(/^[-*]\s+/.test(tr)){flushPara();if(inOL){html+="</ol>";inOL=false;}if(!inUL){html+="<ul>";inUL=true;}
-      html+="<li>"+inlineFmt(tr.replace(/^[-*]\s+/,""))+"</li>";i++;
-      if(i>=lines.length||!/^[-*]\s+/.test(lines[i].trim())){html+="</ul>";inUL=false;}continue;}
-    if(tr===""){flushPara();closeLists();i++;continue;}
-    if(/<(div|blockquote|details|table|h[123]|ul|ol|pre|figure|iframe|audio|video)/.test(tr)){flushPara();closeLists();html+=ln;i++;continue;}
-    para.push(inlineFmt(ln));i++;
-  }
-  flushPara();closeLists();
-  html=html.replace(/\u0000HTML(\d+)\u0000/g,(m,n)=>htmlBlocks[+n]||"");
-  html=html.replace(/\u0000CODE(\d+)\u0000/g,(m,n)=>"<pre>"+esc(codeBlocks[+n]||"")+"</pre>");
-  return html;
+function tick(){
+  const d=new Date();
+  const msk=new Date(d.getTime()+(d.getTimezoneOffset()+180)*60000);
+  const p=n=>String(n).padStart(2,"0");
+  $("clock").textContent=p(msk.getHours())+":"+p(msk.getMinutes())+" MSK";
 }
 
-/* ---------- pages ---------- */
-function curTitle(){ return decodeURIComponent(location.hash.replace(/^#\/?/,"")).trim(); }
-function findPage(t){ return PAGES.find(p=>p.title.toLowerCase()===String(t).toLowerCase()); }
-function renderView(){
-  const t=curTitle(), p=findPage(t), el=$("page");
-  if(!PAGES.length){ el.innerHTML='<div class="hint">empty — click the dot in the corner to begin</div>'; document.title="blank"; }
-  else if(!p){
-    if(!t){ location.hash="#/"+encodeURIComponent(PAGES[0].title); return; }
-    el.innerHTML='<h1>'+esc(t)+'</h1><p style="color:#888">This page does not exist yet.</p>'+(UNSEALED?'<p><button id="mkBtn" style="font-family:Arial;padding:8px 16px;border:1px solid #888;background:#f4f4f4;cursor:pointer">create “'+esc(t)+'”</button></p>':'<p style="color:#888">Unlock in the menu to create it.</p>');
-    document.title=t;
-    const b=$("mkBtn"); if(b)b.onclick=()=>{const now=new Date().toLocaleString();PAGES.push({title:t,body:"# "+t+"\n",created:now,updated:now});savePages();renderView();openMenu();};
-  }
-  else{ el.innerHTML=bannerHTML()+renderBody(p.body); document.title=p.title; }
-  refreshMenu();
+function renderTicker(){
+  const items=(UPDATES||[]).slice(0,8).map(u=>"★ "+u.tag+" — "+u.title);
+  $("tickerText").textContent = items.length? items.join("  ") + "  ★ СЛАВА СОЮЗУ ★ " : "★ СЛАВА СОЮЗУ ★";
 }
-window.addEventListener("hashchange",renderView);
 
-/* ---------- menu ---------- */
-function say(m){$("mMsg").textContent=m||"";}
-function openMenu(){refreshMenu();$("menu").classList.add("show");}
-function closeMenu(){$("menu").classList.remove("show");}
-$("dot").onclick=openMenu;
-$("mClose").onclick=closeMenu;
-$("menu").addEventListener("click",e=>{if(e.target.id==="menu")closeMenu();});
-document.addEventListener("keydown",e=>{if(e.ctrlKey&&e.shiftKey&&(e.key==="E"||e.key==="e")){e.preventDefault();$("menu").classList.contains("show")?closeMenu():openMenu();}});
-$("mHelp").onclick=()=>$("help").classList.add("show");
-$("hClose").onclick=()=>$("help").classList.remove("show");
-$("help").addEventListener("click",e=>{if(e.target.id==="help")$("help").classList.remove("show");});
-$("mCode").addEventListener("keydown",e=>{if(e.key==="Enter")$("mUnlock").click();});
+function renderOverview(){
+  const m=DATA.meta, s=DATA.situation;
+  $("brandSub").textContent="Official record — "+m.state_name+" • "+m.motto_en;
+  $("topStamp").textContent="STAMP № "+m.stamp_no+" • "+m.last_updated;
+  $("footStamp").textContent="№ "+m.stamp_no;
+  $("sitDate").textContent=m.last_updated;
+  $("sitHead").textContent=s.headline;
+  $("sitSummary").textContent=s.summary;
+  $("statusLines").innerHTML=s.status_lines.map(t=>'<div class="stat"><b>DIRECTIVE</b><span style="color:#111;font-size:11px">'+esc(t)+'</span></div>').join("");
+  $("planBox").innerHTML="<b>"+esc(s.five_year_plan.title)+"</b><br>"+esc(s.five_year_plan.text)+"<br><span style='color:var(--muted)'>"+s.five_year_plan.targets.map(esc).join(" • ")+"</span>";
+  $("overviewStats").innerHTML=
+    stat("REPUBLICS","15","SSRs, one plan")+
+    stat("ELECTORAL VOTES","147","74 to win")+
+    stat("STATE ENTERPRISES",DATA.enterprises.length,"live on USSR-stock")+
+    stat("MINISTRIES",DATA.ministries.length,"organs of power");
+  const latest=(UPDATES||[]).slice(0,4);
+  $("decCount").textContent=UPDATES.length+" published";
+  $("latestFeed").innerHTML=latest.map(feedItem).join("")||"<div class='feed-item'>No decrees yet.</div>";
+}
+function stat(k,v,s){return '<div class="stat"><b>'+esc(k)+'</b><strong>'+esc(v)+'</strong><span>'+esc(s)+'</span></div>';}
+function feedItem(u){
+  return '<div class="feed-item"><div class="feed-date">'+esc(u.date)+'<br><span class="badge b-red" style="margin-top:4px">'+esc(u.tag)+'</span></div><div><b>'+esc(u.title)+'</b><div class="mono" style="font-size:11px;margin-top:4px">'+esc(u.body)+'</div></div></div>';
+}
+function renderLeaders(){
+  $("leaderGrid").innerHTML=DATA.leadership.map((l,i)=>
+    '<div class="leader'+(i<2?" top":"")+'"><div class="ph">'+(l.img?'<img src="'+esc(l.img)+'" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()">':"☭")+'</div>'+
+    '<div class="lb"><span class="post">'+esc(l.post)+'</span><div class="ru">'+esc(l.title_ru||"")+'</div><h3>'+esc(l.name)+'</h3><div class="rank">'+esc(l.rank||"")+' • <span class="badge '+(l.status.includes("VACANT")?"b-warn":"b-good")+'">'+esc(l.status)+'</span></div><p>'+esc(l.desc)+'</p></div></div>'
+  ).join("");
+}
+function renderSSRs(){
+  $("ssrTable").innerHTML=DATA.ssrs.map(s=>'<tr><td><b>'+s.emoji+' '+esc(s.name)+'</b></td><td>'+esc(s.zone)+'</td><td>'+s.resources.map(esc).join(", ")+'</td><td>'+esc(s.note)+'</td></tr>').join("");
+  $("ssrGrid").innerHTML=DATA.ssrs.map(s=>'<div class="region"><h4>'+s.emoji+' '+esc(s.name)+'</h4><div class="meta">ZONE: '+esc(s.zone).toUpperCase()+'</div><div class="res">'+s.resources.map(r=>'<span class="badge b-warn" style="margin:1px">'+esc(r)+'</span>').join(" ")+'</div><div class="meta" style="margin-top:6px">'+esc(s.note)+'</div></div>').join("");
+}
+function renderGov(){
+  $("minTable").innerHTML=DATA.ministries.map(m=>'<tr><td><b>'+esc(m.name)+'</b><br><span style="color:var(--muted)">'+esc(m.ru)+'</span></td><td>'+esc(m.job)+'</td></tr>').join("");
+  $("compTable").innerHTML=DATA.enterprises.map(c=>'<tr><td><b>'+esc(c.name)+'</b></td><td>'+esc(c.ticker)+'</td><td>'+esc(c.hq)+'</td></tr>').join("");
+  $("lawTable").innerHTML=DATA.laws.map(l=>'<tr><td><b>'+esc(l.n)+'</b></td><td><b>'+esc(l.t)+'</b></td><td>'+esc(l.d)+'</td></tr>').join("");
+}
+function renderDecrees(){
+  $("decCount2").textContent=UPDATES.length+" published";
+  $("fullFeed").innerHTML=(UPDATES||[]).map(feedItem).join("")||"No decrees.";
+}
+function renderJoin(){
+  $("joinSteps").innerHTML=DATA.join.steps.map(s=>"<li>"+esc(s)+"</li>").join("");
+  $("cmdTable").innerHTML=DATA.join.commands.map(c=>"<tr><td><code>"+esc(c.split(" — ")[0])+"</code> "+esc(c.split(" — ").slice(1).join(" — "))+"</td></tr>").join("");
+}
 
-$("mUnlock").onclick=async()=>{
-  const c=$("mCode").value; if(!c.trim()){say("type the code first.");return;}
-  say("checking…");
-  if(await verifyCode(c)){UNSEALED=true;try{sessionStorage.setItem("grand_unsealed","1");}catch(e){}$("mCode").value="";say("unlocked — you can change things now.");}
-  else say("wrong code.");
-  refreshMenu(); renderView();
-};
-$("mLock").onclick=()=>{UNSEALED=false;try{sessionStorage.removeItem("grand_unsealed");}catch(e){}say("locked.");refreshMenu();renderView();};
+// Nav
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#nav button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  ["overview","leaders","ssrs","gov","decrees","join"].forEach(v=>$("view-"+v).classList.toggle("hidden",v!==b.dataset.view));
+  window.scrollTo({top:0,behavior:"smooth"});
+});
 
-function refreshMenu(){
-  const sel=$("mList"); if(!sel)return;
-  const cur=curTitle();
-  sel.innerHTML="";
-  PAGES.forEach(p=>{const o=document.createElement("option");o.value=p.title;o.textContent=p.title;if(p.title===cur)o.selected=true;sel.appendChild(o);});
-  if(!PAGES.length){const o=document.createElement("option");o.value="";o.textContent="(no pages yet)";sel.appendChild(o);}
-  const p=findPage(sel.value||cur);
-  if(p){if(document.activeElement!==$("mTitle"))$("mTitle").value=p.title;if(document.activeElement!==$("mBody"))$("mBody").value=p.body||"";}
-  else{$("mTitle").value="";if(document.activeElement!==$("mBody"))$("mBody").value="";}
-  $("mStatus").textContent=UNSEALED?"unlocked":"locked";
-  fillDesign();
-}
-function pairFill(c,t,v){const a=$(c),b=$(t);v=v||"";if(a){try{a.value=v;}catch(e){}}if(b&&document.activeElement!==b)b.value=v;}
-function fillDesign(){
-  pairFill("dBg","dBgT",DESIGN.bg);$("dBgImg").value=DESIGN.bgImg||"";
-  pairFill("dInk","dInkT",DESIGN.ink);pairFill("dLink","dLinkT",DESIGN.link);pairFill("dH","dHT",DESIGN.hcolor);
-  $("dFont").value=DESIGN.font;$("dSize").value=DESIGN.fsize;$("dWidth").value=DESIGN.maxw;
-  $("dBanOn").checked=DESIGN.bannerOn==="1";$("dBanT").value=DESIGN.bannerTitle||"";$("dBanS").value=DESIGN.bannerSub||"";
-  pairFill("dBanBg","dBanBgT",DESIGN.bannerBg);pairFill("dBanTxt","dBanTxtT",DESIGN.bannerTxt);
-  $("dBanImg").value=DESIGN.bannerImg||"";$("dBanAlign").value=DESIGN.bannerAlign;$("dBanAnim").value=DESIGN.bannerAnim;
-  $("dFade").checked=DESIGN.fade==="1";
-  if(document.activeElement!==$("dCustom"))$("dCustom").value=DESIGN.custom||"";
-}
-function grab(c,t){const b=$(t);if(b&&b.value.trim())return b.value.trim();return $(c).value;}
-function collectDesign(){
-  DESIGN.bg=grab("dBg","dBgT");DESIGN.bgImg=$("dBgImg").value.trim();
-  DESIGN.ink=grab("dInk","dInkT");DESIGN.link=grab("dLink","dLinkT");DESIGN.hcolor=grab("dH","dHT");
-  DESIGN.font=$("dFont").value;DESIGN.fsize=$("dSize").value;DESIGN.maxw=$("dWidth").value;
-  DESIGN.bannerOn=$("dBanOn").checked?"1":"0";DESIGN.bannerTitle=$("dBanT").value;
-  DESIGN.bannerSub=$("dBanS").value;DESIGN.bannerBg=grab("dBanBg","dBanBgT");DESIGN.bannerTxt=grab("dBanTxt","dBanTxtT");
-  DESIGN.bannerImg=$("dBanImg").value.trim();DESIGN.bannerAlign=$("dBanAlign").value;DESIGN.bannerAnim=$("dBanAnim").value;
-  DESIGN.fade=$("dFade").checked?"1":"0";DESIGN.custom=$("dCustom").value;
-}
-function designChanged(){collectDesign();saveDesign();applyDesign();renderView();}
-["dBg","dBgT","dBgImg","dInk","dInkT","dLink","dLinkT","dH","dHT","dCustom"].forEach(id=>$(id).addEventListener("input",designChanged));
-["dFont","dSize","dWidth","dBanT","dBanS","dBanBg","dBanBgT","dBanTxt","dBanTxtT","dBanImg","dBanAlign","dBanAnim"].forEach(id=>$(id).addEventListener("input",designChanged));
-["dFont","dSize","dWidth","dBanAlign","dBanAnim"].forEach(id=>$(id).addEventListener("change",designChanged));
-["dBanOn","dFade"].forEach(id=>$(id).addEventListener("change",designChanged));
-$("dApplyPreset").onclick=()=>{
-  const k=$("dPreset").value;if(!LOOKS[k])return;
-  const keepTitle=DESIGN.bannerTitle, keepSub=DESIGN.bannerSub;
-  DESIGN=Object.assign({},DESIGN,LOOKS[k]);DESIGN.bannerTitle=keepTitle;DESIGN.bannerSub=keepSub;
-  saveDesign();applyDesign();fillDesign();renderView();say("look applied — tweak anything below it.");
-};
-$("mList").addEventListener("change",e=>{const p=findPage(e.target.value);if(p){$("mTitle").value=p.title;$("mBody").value=p.body||"";}});
-$("mOpen").onclick=()=>{const v=$("mList").value;if(v){location.hash="#/"+encodeURIComponent(v);closeMenu();}};
-$("mCreate").onclick=()=>{
-  if(!UNSEALED){say("unlock first (section 1).");return;}
-  const t=$("mNew").value.trim();if(!t){say("name the page first.");return;}
-  if(findPage(t)){location.hash="#/"+encodeURIComponent(t);closeMenu();say("that page already exists — opened it.");return;}
-  const now=new Date().toLocaleString();PAGES.push({title:t,body:"# "+t+"\n",created:now,updated:now});
-  savePages();$("mNew").value="";location.hash="#/"+encodeURIComponent(t);renderView();say("created: "+t);
-};
-$("mSave").onclick=()=>{
-  if(!UNSEALED){say("unlock first (section 1).");return;}
-  const cur=curTitle();let p=findPage(cur)||findPage($("mList").value);
-  const nt=$("mTitle").value.trim();
-  if(!p){
-    if(!nt){say("nothing to save — create a page first (section 2).");return;}
-    const now=new Date().toLocaleString();p={title:nt,body:$("mBody").value,created:now,updated:now};PAGES.push(p);
-  }else{
-    if(nt&&nt!==p.title){if(findPage(nt)){say("that name is taken.");return;}p.title=nt;}
-    p.body=$("mBody").value;p.updated=new Date().toLocaleString();
-  }
-  savePages();location.hash="#/"+encodeURIComponent(p.title);renderView();say("saved.");
-};
-$("mDelete").onclick=()=>{
-  if(!UNSEALED){say("unlock first (section 1).");return;}
-  const v=$("mList").value;if(!v||!confirm("Delete “"+v+"”?"))return;
-  PAGES=PAGES.filter(p=>p.title!==v);savePages();
-  if(PAGES.length)location.hash="#/"+encodeURIComponent(PAGES[0].title);else{location.hash="#/";renderView();}
-  say("deleted.");
-};
-$("mDupe").onclick=()=>{
-  if(!UNSEALED){say("unlock first (section 1).");return;}
-  const p=findPage($("mList").value);if(!p)return;
-  const now=new Date().toLocaleString();
-  PAGES.push({title:p.title+" (copy)",body:p.body,created:now,updated:now});savePages();renderView();say("duplicated.");
-};
-(function(){
-  const snips=["# Heading","**bold**","*italic*","__underline__","[[Page]]","[label](https://…)","![what](https://…/pic.jpg)","{{img|url|what}}","{{color|#c90000|words}}","{{box|Title|words}}","{{anim|glow|words}}","{{anim|marquee|words}}","{{stamp|OK}}","{{video|url}}","{{columns|left /// right}}","{{quote|words|— who}}","{{button|Label|Page}}","{{hr_star}}"];
-  const w=$("mSnips");
-  snips.forEach(s=>{const b=document.createElement("button");b.textContent=s.length>15?s.slice(0,15)+"…":s;b.title="insert: "+s;
-    b.onclick=()=>{const ta=$("mBody");const a=ta.selectionStart??ta.value.length;ta.value=ta.value.slice(0,a)+s+ta.value.slice(ta.selectionEnd??a);ta.focus();};
-    w.appendChild(b);});
+(async function init(){
+  tick(); setInterval(tick,20000);
+  const [d,u]=await Promise.all([loadJSON("./data.json",null),loadJSON("./updates.json",FALLBACK_UPDATES)]);
+  if(!d){ document.querySelector(".page").insertAdjacentHTML("afterbegin",'<div class="seal" style="border-color:var(--red)">⚠ data.json not found — place index.html + data.json + updates.json together in the ussrpage repo root.</div>'); return; }
+  DATA=d; UPDATES=(u||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  renderTicker(); renderOverview(); renderLeaders(); renderSSRs(); renderGov(); renderDecrees(); renderJoin();
+  $("genAt").textContent="UPDATED "+DATA.meta.last_updated;
 })();
-$("mExport").onclick=()=>{const blob=new Blob([JSON.stringify({pages:PAGES,design:DESIGN},null,2)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="pages-backup.json";a.click();say("backup downloaded.");};
-$("mImportBtn").onclick=()=>{if(!UNSEALED){say("unlock first (section 1).");return;}$("mImportFile").click();};
-$("mImportFile").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const d=JSON.parse(r.result);if(d.pages&&Array.isArray(d.pages)){PAGES=d.pages;savePages();if(d.design){DESIGN=Object.assign(DESIGN,d.design);saveDesign();applyDesign();}renderView();say("backup loaded: "+PAGES.length+" pages.");}else say("that file has no pages in it.");}catch(err){say("that file is broken.");}};
-  r.readAsText(f);e.target.value="";});
-$("mWipe").onclick=()=>{if(!UNSEALED){say("unlock first (section 1).");return;}if(!confirm("Delete EVERY page?"))return;
-  PAGES=[];savePages();location.hash="#/";renderView();say("all blank.");};
-
-applyDesign();
-renderView();
 </script>
 </body>
 </html>
