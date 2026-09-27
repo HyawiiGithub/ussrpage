@@ -6,8 +6,6 @@
 <meta name="theme-color" content="#7a0f0f">
 <title>Union of Soviet Socialist Republics</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 :root{
   --red:#8a0f14; --red-dark:#4a0608; --red-bg:#7a0f0f;
@@ -140,6 +138,7 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
       <button data-atab="pages" class="on">Pages</button>
       <button data-atab="leaders">Leadership</button>
       <button data-atab="settings">Settings</button>
+      <button data-atab="publish">Publish</button>
       <button data-atab="help">Help</button>
       <button id="mLock" style="margin-left:auto">lock</button>
     </div>
@@ -170,9 +169,17 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
       <label>Other-site button label</label><input type="text" id="sOtherLabel">
       <div><button class="primary" id="sSave">save settings</button></div>
     </div>
+    <div id="atab-publish" class="hidden">
+      <p><b>Saving = publishing.</b> Every save commits <code>data.json</code> to the repo — that file is exactly what everyone sees. Needs a token, kept in this tab only, never written anywhere.</p>
+      <label>Publish token (classic, <b>repo</b> scope)</label>
+      <div style="display:flex;gap:6px"><input type="password" id="ghTok" placeholder="ghp_…" style="flex:1"><button class="primary" id="ghSave">remember</button><button id="ghForget">forget</button></div>
+      <small id="ghStatus">no token in this tab</small>
+      <p style="margin-top:6px">Make one: GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new → tick <b>repo</b> → paste here. Delete it there any time to revoke. Without a token, edits are kept on this device only.</p>
+    </div>
     <div id="atab-help" class="hidden">
-      <p><b>How it works.</b> Everything you save here goes to the Union database (Firebase) and appears for everyone instantly — no code, no rebuild. If the database rules are not opened yet, edits are kept on your device and the menu tells you exactly how to fix it.</p>
-      <p style="margin-top:6px">• <b>Pages:</b> create e.g. History, Structure, Constitution. They appear in the top menu automatically.<br>• <b>Leadership:</b> add a photo per leader, set post + status. <b>LEADER</b> = currently leading (red stamp), <b>OFFICIAL</b> = in office, <b>VETERAN</b> = former / honorary. Remove anyone with one click.<br>• <b>Photos:</b> picked files are shrunk in your browser and stored with the record; links work too.<br>• Keep the access code secret. Anyone with it can edit.</p>
+      <p><b>How it works.</b> Pressing save publishes <code>data.json</code> to the repo — that file is exactly what every visitor sees, going live in about a minute. No rebuild, no console.</p>
+      <p style="margin-top:6px">• <b>Publish tab:</b> paste your token once per tab first, or saves stay on your device.<br>• <b>Pages:</b> History is yours to write; new pages appear in the top menu automatically. Overview, Leadership and Structure are automatic.<br>• <b>Leadership:</b> add a photo per leader, set post + category + status. <b>LEADER</b> = currently leading (red stamp), <b>OFFICIAL</b> = in office, <b>VETERAN</b> = former / honorary. Remove anyone with one click.<br>• <b>Categories:</b> sections on the Leadership page, top to bottom — High Command first, then the rest.<br>• <b>Photos:</b> GIFs keep moving (under 3 MB), stills are shrunk in your browser; links work too.<br>• Keep the access code and the token secret. Either one can edit.</p>
+    </div>
     </div>
     <small id="mMsg"></small>
   </div>
@@ -183,19 +190,13 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
 /* ACCESS: salted SHA-256 hash only — the code itself is nowhere in this file. */
 const SALT = "USSR-ALMANAC::v1";
 const CODE_HASH = "748c0a05953aefe6dc7ba00e6e1b71eb658cc1a113bcf8c17281c5c5754f89d3";
-const DB_PATH = "ussrpage/v1";
+const GH_OWNER = "HyawiiGithub";
+const GH_REPO = "ussrpage";
+const GH_PATH = "data.json";
+const GH_BRANCH = "main";
+const GH_API = "https://api.github.com/repos/" + GH_OWNER + "/" + GH_REPO + "/contents/" + GH_PATH;
 const LS_KEY = "ussr_almanac_local_v1";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBwDpAdLqHdoFPUt0Ovy4uG-MFd0WIrY2w",
-  authDomain: "union-of-gaming-court.firebaseapp.com",
-  databaseURL: "https://union-of-gaming-court-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "union-of-gaming-court",
-  storageBucket: "union-of-gaming-court.firebasestorage.app",
-  messagingSenderId: "883947931712",
-  appId: "1:883947931712:web:edcd23d5b38c055be2f7a5",
-  measurementId: "G-K3C0X16F1R"
-};
+const LS_TOKEN = "ussr_gh_token_v1";
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -227,28 +228,50 @@ const DEFAULTS = {
 let CONTENT = structuredClone(DEFAULTS);
 let UNSEALED = false;
 try { UNSEALED = sessionStorage.getItem("ussr_unsealed") === "1"; } catch(e) {}
-let FB = { ok:false, db:null };
-let LAST_SAVE = { where:"local", error:null };
 
 async function sha256hex(s){
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,"0")).join("");
 }
 
-function initFirebase(){
+function ghToken(){ try{ return sessionStorage.getItem(LS_TOKEN) || ""; }catch(e){ return ""; } }
+function b64encodeUnicode(s){
+  const bytes = new TextEncoder().encode(s);
+  let bin = "";
+  for (let i=0; i<bytes.length; i+=8192){ bin += String.fromCharCode.apply(null, bytes.subarray(i, i+8192)); }
+  return btoa(bin);
+}
+async function ghGetSha(token){
+  const r = await fetch(GH_API + "?ref=" + GH_BRANCH, { headers:{ Accept:"application/vnd.github+json", Authorization:"Bearer " + token } });
+  if (r.status === 401 || r.status === 403) throw new Error("TOKEN_REJECTED");
+  if (!r.ok) throw new Error("GITHUB_READ_" + r.status);
+  return (await r.json()).sha;
+}
+async function ghPut(token, contentStr, sha, message){
+  const r = await fetch(GH_API, { method:"PUT",
+    headers:{ Accept:"application/vnd.github+json", Authorization:"Bearer " + token, "Content-Type":"application/json" },
+    body: JSON.stringify({ message:message, content:b64encodeUnicode(contentStr), sha:sha, branch:GH_BRANCH }) });
+  return r;
+}
+async function publish(reason){
+  /* Single source of truth: data.json in the repo. Everyone reads it; saves commit it. */
+  try { localStorage.setItem(LS_KEY, JSON.stringify(Object.assign({}, CONTENT, { savedAt:new Date().toISOString() }))); } catch(e) {}
+  const token = ghToken();
+  if (!token){ say("Paste your publish token (Publish tab) — edits are kept on this device until then."); return false; }
+  const contentStr = JSON.stringify({ settings:CONTENT.settings, categories:CONTENT.categories, leaders:CONTENT.leaders, pages:CONTENT.pages }, null, 1);
+  if (contentStr.length > 4.5*1024*1024){ say("Too big to publish — shrink or remove a photo first."); return false; }
+  say("Publishing…");
   try{
-    firebase.initializeApp(firebaseConfig);
-    FB.db = firebase.database();
-    FB.ok = true;
-    FB.db.ref(DB_PATH).on("value", snap => {
-      const v = snap.val();
-      if (v && (v.pages || v.leaders)) {
-        CONTENT = normalize(v);
-        renderAll();
-        if (UNSEALED) refreshAdmin();
-      }
-    });
-  }catch(e){ FB.ok = false; }
+    let sha;
+    try { sha = await ghGetSha(token); }
+    catch(e){ if (e.message === "TOKEN_REJECTED"){ say("Token rejected — check it has repo scope, then paste it again."); return false; } throw e; }
+    let put = await ghPut(token, contentStr, sha, "almanac: " + reason);
+    if (put.status === 401 || put.status === 403){ say("Token rejected — check it has repo scope, then paste it again."); return false; }
+    if (put.status === 422){ put = await ghPut(token, contentStr, await ghGetSha(token), "almanac: " + reason + " (retry)"); }
+    if (!put.ok) throw new Error("GITHUB_WRITE_" + put.status);
+    say("Published — live for everyone in about a minute.");
+    return true;
+  }catch(e){ say("Publish failed (" + String((e && e.message) || e) + ") — edits kept on this device. Check connection and token."); return false; }
 }
 function normalize(v){
   const c = structuredClone(DEFAULTS);
@@ -258,23 +281,6 @@ function normalize(v){
   c.leaders.forEach(l=>{ if(!l.group) l.group = "Leadership"; });
   if (Array.isArray(v.pages) && v.pages.length) c.pages = v.pages;
   return c;
-}
-async function saveAll(){
-  const payload = Object.assign({}, CONTENT, { savedAt: new Date().toISOString() });
-  try { localStorage.setItem(LS_KEY, JSON.stringify(payload)); } catch(e) {}
-  if (FB.ok){
-    try { await FB.db.ref(DB_PATH).set(payload); LAST_SAVE = { where:"firebase", error:null }; }
-    catch(e){
-      LAST_SAVE = { where:"local", error:(e && e.code) || "PERMISSION_DENIED" };
-    }
-  } else {
-    LAST_SAVE = { where:"local", error:"NO_CONNECTION" };
-  }
-  return LAST_SAVE;
-}
-function savedMsg(action){
-  if (LAST_SAVE.where === "firebase") return action + " \u2014 live for everyone.";
-  return action + " \u2014 DATABASE LOCKED, kept on this device only. Fix: Firebase console \u2192 Realtime Database \u2192 Rules (see repo README), then save again.";
 }
 function loadLocal(){
   try{
@@ -448,7 +454,7 @@ function showAdmin(){
 document.querySelectorAll("[data-atab]").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("[data-atab]").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");
-  ["pages","leaders","settings","help"].forEach(t=>$("atab-"+t).classList.toggle("hidden", t!==b.dataset.atab));
+  ["pages","leaders","settings","publish","help"].forEach(t=>$("atab-"+t).classList.toggle("hidden", t!==b.dataset.atab));
 });
 
 /* pages tab */
@@ -483,7 +489,7 @@ $("pSave").onclick = async ()=>{
   p.title = $("pTitle").value.trim() || p.title;
   p.body = $("pBody").value;
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  await saveAll(); renderAll(); refreshPages(); say(savedMsg("Page saved"));
+  renderAll(); refreshPages(); await publish("update page");
 };
 $("pNew").onclick = async ()=>{
   const title = $("pTitle").value.trim();
@@ -492,7 +498,7 @@ $("pNew").onclick = async ()=>{
   if (fixedPages().includes(slug)){ say("That name is reserved for an automatic view."); return; }
   CONTENT.pages.push({ id: uid(), slug, title, body: $("pBody").value || "# "+title+"\n" });
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  await saveAll(); renderAll(); refreshPages(); say("Created: " + title);
+  renderAll(); refreshPages(); await publish("new page: " + title);
 };
 $("pDelete").onclick = async ()=>{
   const p = CONTENT.pages.find(p=>p.id===$("pList").value);
@@ -500,7 +506,7 @@ $("pDelete").onclick = async ()=>{
   if (fixedPages().includes(p.slug)){ say("Overview / Leadership / Join cannot be deleted."); return; }
   if (!confirm("Delete page “"+p.title+"”?")) return;
   CONTENT.pages = CONTENT.pages.filter(x=>x.id!==p.id);
-  await saveAll(); renderAll(); refreshPages(); say("Deleted.");
+  renderAll(); refreshPages(); await publish("delete page");
 };
 
 /* leaders tab */
@@ -534,7 +540,7 @@ function refreshLeaders(){
       if (b.dataset.a==="dn"){ CONTENT.leaders.splice(idx,1); CONTENT.leaders.splice(idx+1,0,l); }
       if (b.dataset.a==="up2"){ await uploadPhoto(d, l); return; }
       CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-      await saveAll(); renderAll(); refreshLeaders(); say(savedMsg("Leadership saved"));
+      renderAll(); refreshLeaders(); await publish("update leadership");
     });
     d.querySelectorAll("[data-f]").forEach(inp=>inp.onchange=()=>collectLeader(d,l));
     w.appendChild(d);
@@ -590,13 +596,13 @@ async function uploadPhoto(d, l){
     l.img = await fileToPhoto(f);
     d.querySelector('[data-f="img"]').value = l.img;
     CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-    await saveAll(); renderAll(); refreshLeaders(); say(savedMsg("Photo saved"));
+    renderAll(); refreshLeaders(); await publish("update photo");
   }catch(e){ say("That file is not readable (GIFs must be under 3 MB)."); }
 }
 $("lAdd").onclick = ()=>{ CONTENT.leaders.push({ id: uid(), name:"New comrade", post:"NEW POST", postRu:"", rank:"★", bio:"", img:"", status:"OFFICIAL", group:(CONTENT.categories.includes("Leadership")?"Leadership":CONTENT.categories[0]) }); refreshLeaders(); say("Added — fill the fields, then save leadership."); };
 $("lSave").onclick = async ()=>{
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  await saveAll(); renderAll(); say(savedMsg("Leadership saved"));
+  renderAll(); await publish("update leadership");
 };
 
 /* settings tab */
@@ -612,7 +618,7 @@ $("sSave").onclick = async ()=>{
     otherUrl:$("sOther").value, otherLabel:$("sOtherLabel").value,
     updated:new Date().toISOString().slice(0,10)
   });
-  await saveAll(); renderAll(); say(savedMsg("Settings saved"));
+  renderAll(); await publish("update settings");
 };
 function refreshCats(){
   const w = $("cList"); w.innerHTML = "";
@@ -634,7 +640,7 @@ function refreshCats(){
       if(b.dataset.a==="up" && idx>0){ CONTENT.categories.splice(idx,1); CONTENT.categories.splice(idx-1,0,name); }
       if(b.dataset.a==="dn"){ CONTENT.categories.splice(idx,1); CONTENT.categories.splice(idx+1,0,name); }
       CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-      await saveAll(); renderAll(); refreshAdmin(); say(savedMsg("Categories saved"));
+      renderAll(); refreshAdmin(); await publish("update categories");
     });
     w.appendChild(d);
   });
@@ -645,14 +651,17 @@ $("cAdd").onclick = async ()=>{
   if(!CONTENT.categories.includes(v)) CONTENT.categories.push(v);
   $("cNew").value = "";
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  await saveAll(); renderAll(); refreshAdmin(); say(savedMsg("Category added"));
+  renderAll(); refreshAdmin(); await publish("update categories");
 };
 $("cSave").onclick = async ()=>{
   document.querySelectorAll("#cList input").forEach((inp,i)=>{ CONTENT.categories[i] = inp.value.trim() || CONTENT.categories[i]; });
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  await saveAll(); renderAll(); refreshAdmin(); say(savedMsg("Categories saved"));
+  renderAll(); refreshAdmin(); await publish("update categories");
 };
-function refreshAdmin(){ refreshPages(); refreshCats(); refreshLeaders(); refreshSettings(); }
+function refreshToken(){ const t = ghToken(); const inp = $("ghTok"); if (inp && document.activeElement !== inp) inp.value = t; $("ghStatus").textContent = t ? "token remembered for this tab" : "no token in this tab"; }
+$("ghSave").onclick = ()=>{ const v = $("ghTok").value.trim(); try{ if (v) sessionStorage.setItem(LS_TOKEN, v); else sessionStorage.removeItem(LS_TOKEN); }catch(e){} refreshToken(); say(v ? "Token remembered for this tab." : "Cleared."); };
+$("ghForget").onclick = ()=>{ try{ sessionStorage.removeItem(LS_TOKEN); }catch(e){} refreshToken(); say("Token forgotten."); };
+function refreshAdmin(){ refreshPages(); refreshCats(); refreshLeaders(); refreshSettings(); refreshToken(); }
 
 /* clock + init */
 function tick(){
@@ -669,7 +678,6 @@ function tick(){
     if (r.ok){ const j = await r.json(); if (j && (j.pages||j.leaders)) CONTENT = normalize(j); }
   }catch(e){}
   renderAll();
-  initFirebase();
   refreshLock();
   if (UNSEALED) showAdmin();
 })();

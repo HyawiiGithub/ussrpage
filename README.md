@@ -6,63 +6,51 @@ Gosplan brutalist UI (flat crimson `#8a0f14`, paper `#e8dcc6`,
 
 - Invite: https://discord.gg/soviets
 - Other-site button migrates to the other site (link in Settings).
-- No numbers content lives here by design — one button only.
 
-## Files (static — GitHub Pages, root)
+## How saving works (read this once)
 
-- `index.html` — whole site + committee menu (Firebase via CDN, no build)
-- `data.json` — fallback seed (used only if the database is unreachable)
-- `updates.json` — REMOVED (no decrees feed in this design)
+`data.json` in this repo **is** the site. Every visitor loads exactly that
+file — so whatever is committed here is what everyone sees. No database,
+no rules, no console, nothing to break.
 
-## Editing (no code needed)
+The committee menu (red dot, bottom-right, access code required) publishes
+through the GitHub API: each save commits `data.json` with a message like
+`almanac: update leadership`. Pages rebuilds in about a minute.
 
-Open the site → red dot (bottom-right) or committee button → enter the
-**access code** (sent privately to the owner — never stored in this repo,
-only its salted SHA-256 hash is in `index.html`).
+## Publishing setup (one time)
+
+Saves need a token (kept in your browser tab only — never written anywhere):
+
+1. GitHub → Settings → Developer settings → Personal access tokens →
+   **Tokens (classic)** → Generate new.
+2. Tick the **`repo`** scope, generate, copy the `ghp_…` value.
+3. Open the site → committee menu → unlock → **Publish tab** → paste →
+   remember. Done for that tab.
+4. Delete the token on GitHub any time to revoke.
+
+Without a token, edits are kept on your device (local draft) and the menu
+says so — nothing silently pretends to save.
+
+## Editing
 
 - **Pages tab** — History and any pages you create render from text.
   Overview, Leadership and **Structure are automatic** (Structure is built
   live from your categories + roll — High Command first, then the rest).
   Pages marked ★ cannot be deleted.
 - **Leadership tab** — add / remove leaders, change name, post, Russian
-  title, rank, bio, status (**LEADER** = currently leading, red stamp;
-  **OFFICIAL** = in office; **VETERAN** = former/honorary), reorder with ↑↓.
-  Photo per leader: paste an image link, or pick a file (shrunk + stored automatically).
+  title, rank, bio, category, status (**LEADER** = currently leading, red
+  stamp; **OFFICIAL** = in office; **VETERAN** = former/honorary), reorder
+  with ↑↓. Photo per leader: paste an image link, or pick a file (GIFs keep
+  moving up to 3 MB, stills are shrunk in-browser).
+- **Categories box** — sections on the Leadership page, top to bottom.
+  Removing one moves its leaders to Leadership.
 - **Settings tab** — motto, ticker line, invite, other-site button link+label.
 
-Everything saves to Firebase and appears for everyone instantly.
-
-## Firebase setup (one time, ~1 min)
-
-Content lives in the `union-of-gaming-court` project's **Realtime Database**
-(config is already in `index.html` — the apiKey is public by design).
-Photos need no bucket: picked files are shrunk in the browser and stored
-as text alongside the record.
-
-1. **Realtime Database** → Create database → region `europe-west1` → start
-   in **locked mode**, then replace Rules with:
-   ```json
-   {
-     "rules": {
-       "ussrpage": {
-         ".read": true,
-         ".write": true
-       }
-     }
-   }
-   ```
-   Publish. (Write is open so the committee menu can save without logins;
-   the access code gates the UI. Tighten later with Auth if you want.)
-   Until this is done, the menu keeps your edits on your device and says
-   DATABASE LOCKED instead of crashing.
-2. Open the live site once, unlock with the code, press **save leadership**
-   once — this seeds `ussrpage/v1` in the database. Done.
-
-## Deploy
+## Deploy / manual edits
 
 ```bash
 git add index.html data.json README.md
-git commit -m "feat: almanac v2 — firebase committee menu, invite + other-site button"
+git commit -m "feat: ..."
 git push -u origin main
 ```
 
