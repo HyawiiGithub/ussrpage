@@ -1,4 +1,13 @@
 {
+ "settings": {
+  "motto": "Official record of the Union",
+  "ticker": "★ СЛАВА СОЮЗУ ★ WORKERS OF THE WORLD, UNITE ★",
+  "invite": "https://discord.gg/soviets",
+  "otherUrl": "https://ussr-stock.vercel.app",
+  "otherLabel": "★GOSBANK TERMINAL →",
+  "stamp": "001",
+  "updated": "2026-09-27"
+ },
  "categories": [
   "General Secretary",
   "Deputy General Secretary (Personal Aide to the General Secretary)",
@@ -146,19 +155,10 @@
    "title": "History"
   },
   {
-   "body": "# JOIN THE UNION\n\n1. Open the Discord invite\n2. Read the rules channel\n3. Take your republic role\n4. Report for duty\n\nThe Committee assigns every recruit a post.",
+   "body": "# JOIN THE UNION\n\n1. Open the Discord invite\n2. Read the rules channel\n3. Take on a job\n4. Serve the union\n\nThe Committee assigns every recruit a post.",
    "id": "p-join",
    "slug": "join",
    "title": "Join"
   }
- ],
- "settings": {
-  "invite": "https://discord.gg/soviets",
-  "motto": "Official record of the Union",
-  "otherLabel": "★GOSBANK TERMINAL →",
-  "otherUrl": "https://ussr-stock.vercel.app",
-  "stamp": "001",
-  "ticker": "★ СЛАВА СОЮЗУ ★ WORKERS OF THE WORLD, UNITE ★",
-  "updated": "2026-09-27"
- }
+ ]
 }
