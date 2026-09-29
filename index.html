@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#7a0f0f">
 <title>Union of Soviet Socialist Republics</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 :root{
   --red:#8a0f14; --red-dark:#4a0608; --red-bg:#7a0f0f;
@@ -26,8 +28,7 @@ a{color:var(--red);text-decoration:underline;text-underline-offset:2px}
 @media(max-width:900px){.hdr{grid-template-columns:1fr;gap:8px}}
 .stamp{width:56px;height:56px;background:var(--red);border:3px solid #111;display:grid;place-items:center;color:var(--paper);font:900 20px var(--font-display);line-height:1;transform:rotate(-1deg);box-shadow:3px 3px 0 #111;text-align:center}
 .stamp small{font:700 7px var(--font-mono);display:block;letter-spacing:.1em;color:#f5e6a3}
-.brand h1{font:900 30px var(--font-display);letter-spacing:-.02em;line-height:.9;text-transform:uppercase}
-.brand h1 i{font-style:normal;background:var(--red);color:#fff;padding:0 6px}
+.brand h1{font:900 24px var(--font-display);letter-spacing:-.02em;line-height:.9;text-transform:uppercase}
 .brand p{font:600 10px var(--font-mono);color:var(--muted);margin-top:3px;letter-spacing:.06em;text-transform:uppercase}
 .nav{display:flex;flex-wrap:wrap;gap:6px}
 .nav button{appearance:none;background:#fff;border:2px solid #111;padding:7px 10px;font:700 10px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;box-shadow:2px 2px 0 #111}
@@ -59,6 +60,11 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
 .stat span{font:600 10px var(--font-mono);color:var(--muted)}
 .badge{display:inline-block;padding:2px 6px;border:2px solid #111;font:700 9px var(--font-mono);letter-spacing:.06em;text-transform:uppercase}
 .b-good{background:#b6e2b6;color:#111}.b-warn{background:#f5e6a3;color:#111}.b-red{background:var(--red);color:#fff}
+.table-wrap{overflow:auto;border:2px solid #111;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px;background:#111;color:#f5e6a3;font:700 9px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;border-right:1px solid #333}
+td{padding:7px 8px;border-top:1px solid #111;border-right:1px solid #ddd;white-space:nowrap;font:500 12px var(--font-mono)}
+tbody tr:nth-child(even) td{background:var(--paper2)}
 .leader-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 @media(max-width:1000px){.leader-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.leader-grid{grid-template-columns:1fr}}
@@ -88,6 +94,16 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
 .body-html li{margin:3px 0}
 .body-html img{max-width:100%;border:2px solid #111;margin:8px 0}
 .body-html code{background:#111;color:#f5e6a3;padding:1px 6px;font-size:11px}
+/* WIKI */
+.wikitabs{display:flex;gap:0;margin:0 0 10px;border:2px solid #111;background:#fff;box-shadow:3px 3px 0 #111;width:fit-content;max-width:100%}
+.wikitabs button{background:#fff;border:0;border-right:2px solid #111;padding:7px 14px;font:700 10px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.wikitabs button:last-child{border-right:0}
+.wikitabs button.on{background:#111;color:#f5e6a3}
+.toolbar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.toolbar button{background:#fff;border:2px solid #111;padding:4px 9px;font:700 11px var(--font-mono);cursor:pointer;box-shadow:2px 2px 0 #111}
+.toolbar button:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #111}
+.edbox{width:100%;min-height:220px;padding:10px;border:2px solid #111;font-family:var(--font-mono);font-size:12px;background:#fff;color:#111}
+.revbanner{border:2px dashed #111;background:#fff;padding:8px;font:600 11px var(--font-mono);margin-bottom:10px}
 /* ADMIN */
 #menu{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);font-family:var(--font-mono)}
 #menu.show{display:flex}
@@ -114,7 +130,7 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
 <header class="hdr">
   <div style="display:flex;gap:10px;align-items:center">
     <div class="stamp">☭<small>CCCP</small></div>
-    <div class="brand"><h1 style="font-size:24px">Union of Soviet Socialist Republics</h1><p id="brandSub">Official record of the Union</p></div>
+    <div class="brand"><h1>Union of Soviet Socialist Republics</h1><p id="brandSub">Official record of the Union</p></div>
   </div>
   <nav class="nav" id="nav"></nav>
   <div class="clock"><div class="t" id="clock">--:-- MSK</div><div class="s"><span class="live"></span><span id="genAt">CENTRAL ARCHIVE</span></div></div>
@@ -129,8 +145,10 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
   <h3><span>★ CENTRAL COMMITTEE MENU</span><span><button id="mClose">close</button></span></h3>
   <div class="sec" id="lockSec">
     <b>1 · UNLOCK</b>
-    <p style="margin:6px 0">Enter the committee access code. It stays open until you close this tab.</p>
+    <p style="margin:6px 0">Enter the committee access code. It stays open until you close this tab. Your signature below is stamped on every edit you make.</p>
     <div style="display:flex;gap:6px"><input type="password" id="mCode" placeholder="access code" style="flex:1"><button class="primary" id="mUnlock">unlock</button></div>
+    <label style="margin-top:8px">Sign edits as</label>
+    <input type="text" id="mName" placeholder="e.g. Kewl" maxlength="40">
     <small id="mStatus">locked</small>
   </div>
   <div class="sec hidden" id="adminSec">
@@ -138,25 +156,26 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
       <button data-atab="pages" class="on">Pages</button>
       <button data-atab="leaders">Leadership</button>
       <button data-atab="settings">Settings</button>
-      <button data-atab="publish">Publish</button>
       <button data-atab="help">Help</button>
       <button id="mLock" style="margin-left:auto">lock</button>
     </div>
     <div id="atab-pages">
-      <p>Free pages (History and any you create) render from text. Overview, Leadership and Structure are automatic — History is yours to write. Pages marked ★ cannot be deleted.</p>
+      <p>Raw page store. Overview, Leadership and Structure are automatic ★. Everything else renders from text here — or faster, with the <b>Edit</b> tab on the page itself.</p>
       <select id="pList"></select>
       <input type="text" id="pTitle" placeholder="page title">
       <textarea id="pBody" placeholder="page text…"></textarea>
+      <input type="text" id="pSummary" placeholder="edit summary — what did you change? (goes in history)" maxlength="120">
       <div><button class="primary" id="pSave">save page</button><button id="pNew">new page</button><button id="pDelete">delete</button></div>
-      <small>Write simply: blank line = new paragraph. <code># Heading</code>, <code>**bold**</code>, <code>*italic*</code>, <code>- list</code>, <code>[text](https://…)</code>, <code>![photo](https://…)</code>.</small>
+      <small>Blank line = new paragraph. <code># Heading</code>, <code>**bold**</code>, <code>*italic*</code>, <code>- list</code>, <code>[text](https://…)</code>, <code>![photo](https://…)</code>.</small>
     </div>
     <div id="atab-leaders" class="hidden">
-      <p>Leaders appear on the Leadership page. Status <b>LEADER</b> marks who leads (red stamp); change anyone's post, photo or status here. Add or remove entries freely.</p>
+      <p>Leaders appear on the Leadership page. Status <b>LEADER</b> marks who leads (red stamp). Add, remove, reorder, re-file anyone freely.</p>
       <div class="lrow"><b>CATEGORIES</b> — sections on the Leadership page, top to bottom.
         <div id="cList"></div>
-        <div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="cNew" placeholder="new category" style="flex:1"><button id="cAdd">+ add</button><button class="dark" id="cSave">save order</button></div>
+        <div style="display:flex;gap:6px;margin-top:6px"><input type="text" id="cNew" placeholder="new category" style="flex:1;margin:0"><button id="cAdd">+ add</button><button class="dark" id="cSave">save order</button></div>
       </div>
       <div id="lList"></div>
+      <input type="text" id="lSummary" placeholder="edit summary — e.g. Kewl takes the Premiership" maxlength="120">
       <div><button class="primary" id="lAdd">+ add leader</button><button class="dark" id="lSave">save leadership</button></div>
       <small>Photo: paste an image link, or pick a file — GIFs keep moving, stills are shrunk — then save.</small>
     </div>
@@ -169,17 +188,9 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
       <label>Other-site button label</label><input type="text" id="sOtherLabel">
       <div><button class="primary" id="sSave">save settings</button></div>
     </div>
-    <div id="atab-publish" class="hidden">
-      <p><b>Saving = publishing.</b> Every save commits <code>data.json</code> to the repo — that file is exactly what everyone sees. Needs a token, kept in this tab only, never written anywhere.</p>
-      <label>Publish token (classic, <b>repo</b> scope)</label>
-      <div style="display:flex;gap:6px"><input type="password" id="ghTok" placeholder="ghp_…" style="flex:1"><button class="primary" id="ghSave">remember</button><button id="ghForget">forget</button></div>
-      <small id="ghStatus">no token in this tab</small>
-      <p style="margin-top:6px">Make one: GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new → tick <b>repo</b> → paste here. Delete it there any time to revoke. Without a token, edits are kept on this device only.</p>
-    </div>
     <div id="atab-help" class="hidden">
-      <p><b>How it works.</b> Pressing save publishes <code>data.json</code> to the repo — that file is exactly what every visitor sees, going live in about a minute. No rebuild, no console.</p>
-      <p style="margin-top:6px">• <b>Publish tab:</b> paste your token once per tab first, or saves stay on your device.<br>• <b>Pages:</b> History is yours to write; new pages appear in the top menu automatically. Overview, Leadership and Structure are automatic.<br>• <b>Leadership:</b> add a photo per leader, set post + category + status. <b>LEADER</b> = currently leading (red stamp), <b>OFFICIAL</b> = in office, <b>VETERAN</b> = former / honorary. Remove anyone with one click.<br>• <b>Categories:</b> sections on the Leadership page, top to bottom — High Command first, then the rest.<br>• <b>Photos:</b> GIFs keep moving (under 3 MB), stills are shrunk in your browser; links work too.<br>• Keep the access code and the token secret. Either one can edit.</p>
-    </div>
+      <p><b>How it works.</b> This is a wiki: every view has <b>Read / Edit / History</b> tabs. Saving writes to the Union database and appears for everyone instantly. Every edit is stamped with your signature and kept in history — open any History tab to read old versions or revert.</p>
+      <p style="margin-top:6px">• <b>Edit tab:</b> toolbar, live preview, summary line. If someone saved while you were writing, you get an edit-conflict warning first.<br>• <b>History tab:</b> every version with author + summary. View any old version, revert with one click.<br>• <b>Changes</b> in the top menu: the whole Union's recent edits in one feed.<br>• <b>Leadership:</b> add a photo per leader, set post + category + status. <b>LEADER</b> = currently leading, <b>OFFICIAL</b> = in office, <b>VETERAN</b> = former/honorary. Roll edits are historied too (photos are carried over on revert).<br>• <b>Categories:</b> sections top to bottom — High Command first, then the rest.<br>• <b>Photos:</b> GIFs keep moving (under 3 MB), stills are shrunk in your browser; links work too.<br>• Keep the access code secret. Anyone with it can edit EVERYTHING.</p>
     </div>
     <small id="mMsg"></small>
   </div>
@@ -190,17 +201,25 @@ h2{font:900 22px var(--font-display);text-transform:uppercase;line-height:1;marg
 /* ACCESS: salted SHA-256 hash only — the code itself is nowhere in this file. */
 const SALT = "USSR-ALMANAC::v1";
 const CODE_HASH = "748c0a05953aefe6dc7ba00e6e1b71eb658cc1a113bcf8c17281c5c5754f89d3";
-const GH_OWNER = "HyawiiGithub";
-const GH_REPO = "ussrpage";
-const GH_PATH = "data.json";
-const GH_BRANCH = "main";
-const GH_API = "https://api.github.com/repos/" + GH_OWNER + "/" + GH_REPO + "/contents/" + GH_PATH;
+const DB_PATH = "ussrpage/v1";
 const LS_KEY = "ussr_almanac_local_v1";
-const LS_TOKEN = "ussr_gh_token_v1";
+const LS_NAME = "ussr_editor_name_v1";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBwDpAdLqHdoFPUt0Ovy4uG-MFd0WIrY2w",
+  authDomain: "union-of-gaming-court.firebaseapp.com",
+  databaseURL: "https://union-of-gaming-court-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "union-of-gaming-court",
+  storageBucket: "union-of-gaming-court.firebasestorage.app",
+  messagingSenderId: "883947931712",
+  appId: "1:883947931712:web:edcd23d5b38c055be2f7a5",
+  measurementId: "G-K3C0X16F1R"
+};
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const uid = () => "id" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const fmtT = iso => { try{ const d = new Date(iso); return d.toLocaleString(); }catch(e){ return String(iso||"—"); } };
 
 const DEFAULTS = {
   settings: {
@@ -213,67 +232,47 @@ const DEFAULTS = {
     updated: "2026-09-27"
   },
   leaders: [
-    { id: "l1", name: "Hyawii", post: "GENERAL SECRETARY", postRu: "ГЕНЕРАЛЬНЫЙ СЕКРЕТАРЬ", rank: "★ ★ ★ SUPREME", bio: "First among equals. Chairs the Central Committee.", img: "", status: "LEADER", group: "High Command" },
-    { id: "l2", name: "— vacant —", post: "DEPUTY GENERAL SECRETARY", postRu: "ЗАМЕСТИТЕЛЬ", rank: "★ ★ HIGH COMMAND", bio: "Acts for the General Secretary.", img: "", status: "OFFICIAL", group: "Leadership" },
-    { id: "l3", name: "— vacant —", post: "PREMIER", postRu: "ПРЕДСЕДАТЕЛЬ СОВЕТА МИНИСТРОВ", rank: "★ ★ GOVERNMENT HEAD", bio: "Heads the Council of Ministers.", img: "", status: "OFFICIAL", group: "Leadership" }
+    { id: "l1", name: "Hyawii", post: "GENERAL SECRETARY", postRu: "ГЕНЕРАЛЬНЫЙ СЕКРЕТАРЬ", rank: "★ ★ ★ SUPREME", bio: "First among equals. Chairs the Central Committee.", img: "", status: "LEADER", group: "High Command" }
   ],
   categories: ["High Command", "Leadership"],
   pages: [
-    { id: "p-overview", slug: "overview", title: "Overview", body: "# THE UNION STANDS\n\nThe official record of our Soviet Union server — its leaders, its structure, its history.\n\n- **Leadership** — who commands what, right now\n- **Structure** — how the Union is organised\n- **History** — how we got here\n\nPress **Join the Union** to enlist." },
+    { id: "p-overview", slug: "overview", title: "Overview", body: "# THE UNION STANDS\n\nThe official record of our Soviet Union server — its leaders, its structure, its history." },
     { id: "p-history", slug: "history", title: "History", body: "# HISTORY\n\n★ WORK IN PROGRESS — the chroniclers are still writing this chapter. ★\n\nCheck back soon." },
-    { id: "p-join", slug: "join", title: "Join", body: "# JOIN THE UNION\n\n1. Open the Discord invite\n2. Read the rules channel\n3. Take your republic role\n4. Report for duty\n\nThe Committee assigns every recruit a post." }
+    { id: "p-join", slug: "join", title: "Join", body: "# JOIN THE UNION\n\n1. Open the Discord invite\n2. Read the rules channel\n3. Take your republic role\n4. Report for duty" }
   ]
 };
 
 let CONTENT = structuredClone(DEFAULTS);
+let REVS = { pages:{}, roll:[] };
 let UNSEALED = false;
 try { UNSEALED = sessionStorage.getItem("ussr_unsealed") === "1"; } catch(e) {}
+let MYNAME = "Anonymous";
+try { MYNAME = localStorage.getItem(LS_NAME) || "Anonymous"; } catch(e) {}
+let FB = { ok:false, db:null };
 
 async function sha256hex(s){
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,"0")).join("");
 }
 
-function ghToken(){ try{ return sessionStorage.getItem(LS_TOKEN) || ""; }catch(e){ return ""; } }
-function b64encodeUnicode(s){
-  const bytes = new TextEncoder().encode(s);
-  let bin = "";
-  for (let i=0; i<bytes.length; i+=8192){ bin += String.fromCharCode.apply(null, bytes.subarray(i, i+8192)); }
-  return btoa(bin);
-}
-async function ghGetSha(token){
-  const r = await fetch(GH_API + "?ref=" + GH_BRANCH, { headers:{ Accept:"application/vnd.github+json", Authorization:"Bearer " + token } });
-  if (r.status === 401 || r.status === 403) throw new Error("TOKEN_REJECTED");
-  if (!r.ok) throw new Error("GITHUB_READ_" + r.status);
-  return (await r.json()).sha;
-}
-async function ghPut(token, contentStr, sha, message){
-  const r = await fetch(GH_API, { method:"PUT",
-    headers:{ Accept:"application/vnd.github+json", Authorization:"Bearer " + token, "Content-Type":"application/json" },
-    body: JSON.stringify({ message:message, content:b64encodeUnicode(contentStr), sha:sha, branch:GH_BRANCH }) });
-  return r;
-}
-async function publish(reason){
-  /* Single source of truth: data.json in the repo. Everyone reads it; saves commit it. */
-  try { localStorage.setItem(LS_KEY, JSON.stringify(Object.assign({}, CONTENT, { savedAt:new Date().toISOString() }))); } catch(e) {}
-  const token = ghToken();
-  if (!token){ say("Paste your publish token (Publish tab) — edits are kept on this device until then."); return false; }
-  const contentStr = JSON.stringify({ settings:CONTENT.settings, categories:CONTENT.categories, leaders:CONTENT.leaders, pages:CONTENT.pages }, null, 1);
-  if (contentStr.length > 4.5*1024*1024){ say("Too big to publish — shrink or remove a photo first."); return false; }
-  say("Publishing…");
+/* ---------- store ---------- */
+function initFirebase(){
   try{
-    let sha;
-    try { sha = await ghGetSha(token); }
-    catch(e){ if (e.message === "TOKEN_REJECTED"){ say("Token rejected — check it has repo scope, then paste it again."); return false; } throw e; }
-    let put = await ghPut(token, contentStr, sha, "almanac: " + reason);
-    if (put.status === 401 || put.status === 403){ say("Token rejected — check it has repo scope, then paste it again."); return false; }
-    if (put.status === 422){ put = await ghPut(token, contentStr, await ghGetSha(token), "almanac: " + reason + " (retry)"); }
-    if (!put.ok) throw new Error("GITHUB_WRITE_" + put.status);
-    say("Published — live for everyone in about a minute.");
-    return true;
-  }catch(e){ say("Publish failed (" + String((e && e.message) || e) + ") — edits kept on this device. Check connection and token."); return false; }
+    firebase.initializeApp(firebaseConfig);
+    FB.db = firebase.database();
+    FB.ok = true;
+    FB.db.ref(DB_PATH).on("value", snap => {
+      const v = snap.val();
+      if (v && (v.pages || v.leaders)) {
+        CONTENT = normalizeContent(v);
+        REVS = normalizeRevs(v.revs);
+        renderAll();
+        if (UNSEALED) refreshAdmin();
+      }
+    });
+  }catch(e){ FB.ok = false; }
 }
-function normalize(v){
+function normalizeContent(v){
   const c = structuredClone(DEFAULTS);
   if (v.settings) c.settings = Object.assign(c.settings, v.settings);
   if (Array.isArray(v.leaders) && v.leaders.length) c.leaders = v.leaders;
@@ -282,14 +281,48 @@ function normalize(v){
   if (Array.isArray(v.pages) && v.pages.length) c.pages = v.pages;
   return c;
 }
+function normalizeRevs(r){
+  const out = { pages:{}, roll:[] };
+  if (!r) return out;
+  if (r.pages) Object.keys(r.pages).forEach(k=>{ if (Array.isArray(r.pages[k])) out.pages[k] = r.pages[k].slice(-40); });
+  if (Array.isArray(r.roll)) out.roll = r.roll.slice(-25);
+  return out;
+}
+function stashLocal(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ content:CONTENT, revs:REVS, savedAt:new Date().toISOString() })); } catch(e) {}
+}
 function loadLocal(){
   try{
     const raw = localStorage.getItem(LS_KEY);
-    if (raw) { const v = JSON.parse(raw); if (v && (v.pages || v.leaders)) CONTENT = normalize(v); }
+    if (!raw) return;
+    const v = JSON.parse(raw);
+    const c = v.content || v;
+    if (c && (c.pages || c.leaders)) CONTENT = normalizeContent(c);
+    if (v.revs) REVS = normalizeRevs(v.revs);
   }catch(e){}
 }
+async function saveDB(){
+  /* One write: content + history. Everyone reads this node live. */
+  stashLocal();
+  if (!FB.ok){ say("No link to the Union database — edits kept on this device. Check connection and reload."); return false; }
+  const payload = { settings:CONTENT.settings, categories:CONTENT.categories, leaders:CONTENT.leaders, pages:CONTENT.pages, revs:REVS, savedAt:new Date().toISOString() };
+  try { await FB.db.ref(DB_PATH).set(payload); return true; }
+  catch(e){ say("Database refused the save (" + String((e && e.code) || e) + ") — edits kept on this device. Open Firebase console → Realtime Database → Rules (see repo README), then save again."); return false; }
+}
+function stripImgs(leaders){ return leaders.map(l=>{ const c = Object.assign({}, l); delete c.img; return c; }); }
+function pushPageRev(slug, body, summary){
+  const p = CONTENT.pages.find(p=>p.slug===slug);
+  if (!p) return;
+  if (!REVS.pages[slug]) REVS.pages[slug] = [];
+  REVS.pages[slug].push({ t:new Date().toISOString(), by:MYNAME, summary:summary || "", body:body });
+  REVS.pages[slug] = REVS.pages[slug].slice(-40);
+}
+function pushRollRev(summary){
+  REVS.roll.push({ t:new Date().toISOString(), by:MYNAME, summary:summary || "", leaders:stripImgs(CONTENT.leaders), categories:CONTENT.categories.slice() });
+  REVS.roll = REVS.roll.slice(-25);
+}
 
-/* mini-markup */
+/* ---------- mini-markup ---------- */
 function renderBody(src){
   let t = esc(String(src || ""));
   t = t.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m,a,u)=>'<img src="'+esc(u.trim())+'" alt="'+esc(a)+'" loading="lazy" onerror="this.style.display=\'none\'">');
@@ -312,10 +345,16 @@ function renderBody(src){
   return html;
 }
 
-/* public views */
+/* ---------- views ---------- */
 let CUR = "overview";
-function fixedPages(){ return ["overview","leadership","structure","join"]; }
-function lockedPages(){ return ["overview","leadership","structure"]; } /* automatic views — body edited elsewhere */
+let MODE = "read";            /* read | edit | hist */
+let HISTVIEW = null;          /* {kind:'page',slug,idx} | {kind:'roll',idx} */
+let ED_BASE = null;           /* {slug, body} captured when editor opened */
+function fixedPages(){ return ["overview","leadership","structure","join","changes"]; }
+function lockedPages(){ return ["overview","leadership","structure"]; }
+function editableSlugs(){
+  return CONTENT.pages.filter(p => !lockedPages().includes(p.slug)).map(p => p.slug);
+}
 function allNav(){
   const dyn = CONTENT.pages.filter(p => !fixedPages().includes(p.slug));
   return [
@@ -323,8 +362,13 @@ function allNav(){
     { slug:"leadership", title:"Leadership" },
     { slug:"structure", title:"Structure" },
     ...dyn.map(p=>({slug:p.slug,title:p.title})),
-    { slug:"join", title:"Join" }
+    { slug:"join", title:"Join" },
+    { slug:"changes", title:"Changes" }
   ];
+}
+function go(slug, mode){
+  CUR = slug; MODE = mode || "read"; HISTVIEW = null; ED_BASE = null;
+  renderAll(); window.scrollTo({top:0,behavior:"smooth"});
 }
 function renderAll(){
   const s = CONTENT.settings;
@@ -338,54 +382,129 @@ function renderAll(){
   $("nav").innerHTML = nav.map(n=>'<button data-v="'+esc(n.slug)+'" class="'+(n.slug===CUR?"active":"")+'">'+esc(n.title.toUpperCase())+'</button>').join("")
     + '<a class="gold" href="'+esc(s.invite)+'" target="_blank" rel="noopener">Join the Union →</a>'
     + '<a class="redbtn" href="'+esc(s.otherUrl)+'" target="_blank" rel="noopener">'+esc(s.otherLabel)+'</a>';
-  document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>{CUR=b.dataset.v;renderAll();window.scrollTo({top:0,behavior:"smooth"});});
+  document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.v));
   $("page").innerHTML = viewHTML(CUR);
+  wireView();
+}
+function wikitabs(slug, kind){
+  /* kind: 'page' | 'roll' | 'none' */
+  if (kind === "none") return "";
+  const ed = (kind === "page") ? editableSlugs().includes(slug) : true;
+  let h = '<div class="wikitabs">'
+    + '<button data-m="read" class="'+(MODE==="read"&&!HISTVIEW?"on":"")+'">Read</button>';
+  if (ed) h += '<button data-m="edit" class="'+(MODE==="edit"?"on":"")+'">Edit</button>';
+  h += '<button data-m="hist" class="'+((MODE==="hist"||HISTVIEW)?"on":"")+'">History</button></div>';
+  return h;
+}
+function needUnlock(){
+  say("Unlock first — open the committee menu (red dot) and enter the code.");
+  openMenu();
 }
 function viewHTML(slug){
-  const s = CONTENT.settings;
   if (slug === "leadership") return viewLeaders();
   if (slug === "structure") return viewStructure();
-  if (slug === "overview"){
-    const leaders = CONTENT.leaders.filter(l=>l.status==="LEADER");
-    return '<div class="hero"><div class="hero-main"><div class="kicker">Official record — '+(esc(s.updated)||"")+'</div>'
-      + '<h2>THE UNION STANDS</h2><p class="body-html">'+esc(s.motto||"")+'</p>'
-      + '<div class="grid grid-3" style="margin-top:10px">'
-      + '<div class="stat"><b>IN COMMAND</b><strong>'+leaders.length+'</strong><span>marked LEADER</span></div>'
-      + '<div class="stat"><b>OFFICE-HOLDERS</b><strong>'+CONTENT.leaders.length+'</strong><span>on the roll</span></div>'
-      + '<div class="stat"><b>PAGES</b><strong>'+CONTENT.pages.length+'</strong><span>committee record</span></div></div>'
-      + '<div><a class="bigbtn" href="'+esc(s.invite)+'" target="_blank" rel="noopener">Join the Union →</a>'
-      + '<a class="bigbtn dark" href="'+esc(s.otherUrl)+'" target="_blank" rel="noopener">'+esc(s.otherLabel)+'</a></div></div>'
-      + '<div class="hero-side"><div style="font:700 10px var(--font-mono);letter-spacing:.12em">★ IN COMMAND NOW</div>'
-      + '<div style="margin-top:8px;line-height:1.7">'+(leaders.length?leaders.map(l=>"<b>"+esc(l.name)+"</b> — "+esc(l.post)).join("<br>"):"Roll being written…")+'</div>'
-      + '<div style="margin-top:10px;border-top:1px solid #f5e6a3;padding-top:8px">Full roll on the <b>Leadership</b> page. History of the Union under <b>History</b>.</div></div></div>';
-  }
+  if (slug === "changes") return viewChanges();
+  if (slug === "overview") return viewOverview();
   if (slug === "join"){
     const p = CONTENT.pages.find(p=>p.slug==="join");
-    return '<div class="kicker">Service to the Union</div><h2>JOIN</h2>'
-      + '<div class="card" style="margin-top:10px"><div class="card-h"><span>ENLIST</span></div><div class="card-b"><div class="body-html">'+renderBody(p?p.body:"")+'</div>'
-      + '<div><a class="bigbtn" href="'+esc(s.invite)+'" target="_blank" rel="noopener">Open the Discord →</a></div></div></div>';
+    return wikiPage("Join", "join", p ? p.body : "", true);
   }
   const p = CONTENT.pages.find(p=>p.slug===slug);
   if (!p) return '<div class="card"><div class="card-b">Page not found.</div></div>';
-  return '<div class="kicker">Committee record</div><h2>'+esc(p.title)+'</h2>'
-    + '<div class="card" style="margin-top:10px"><div class="card-b"><div class="body-html">'+renderBody(p.body)+'</div></div></div>';
+  return wikiPage(p.title, slug, p.body, editableSlugs().includes(slug));
 }
-function viewStructure(){
-  /* Built live from categories + leaders — always in sync with Leadership. */
-  const order = { LEADER:0, OFFICIAL:1, VETERAN:2 };
-  const cats = (CONTENT.categories && CONTENT.categories.length ? CONTENT.categories.slice() : ["Leadership"]);
-  CONTENT.leaders.forEach(l=>{ const g = l.group || "Leadership"; if(!cats.includes(g)) cats.push(g); });
-  let html = '<div class="kicker">How the Union is organised — live from the roll</div><h2>STRUCTURE</h2>';
-  cats.forEach(cat=>{
-    const ls = CONTENT.leaders.filter(l=>(l.group||"Leadership")===cat)
-      .sort((a,b)=>(order[a.status]??9)-(order[b.status]??9));
-    if(!ls.length) return;
-    html += '<div class="card" style="margin-top:10px"><div class="card-h"><span>'+esc(cat.toUpperCase())+'</span><small>'+ls.length+' post'+(ls.length===1?"":"s")+'</small></div>'
-      + '<div class="card-b"><div class="table-wrap"><table><thead><tr><th>POST</th><th>HOLDER</th><th>STANDING</th></tr></thead><tbody>'
-      + ls.map(l=>'<tr><td><b>'+esc(l.post||"—")+'</b></td><td>'+esc(l.name||"—")+'</td><td>'+badge(l.status)+'</td></tr>').join("")
-      + '</tbody></table></div></div></div>';
-  });
-  return html;
+function wikiPage(title, slug, body, editable){
+  let h = '<div class="kicker">Committee record</div><h2>'+esc(title)+'</h2>' + wikitabs(slug, editable ? "page" : "none");
+  if (MODE === "edit" && editable){
+    if (!UNSEALED){ needUnlock(); MODE = "read"; return wikiPage(title, slug, body, editable); }
+    h += editorHTML(slug, body);
+  } else if (MODE === "hist" || HISTVIEW){
+    h += pageHistHTML(slug);
+  } else {
+    h += '<div class="card" style="margin-top:10px"><div class="card-b"><div class="body-html">'+renderBody(body)+'</div></div></div>';
+  }
+  return h;
+}
+function editorHTML(slug, body){
+  return '<div class="card"><div class="card-h"><span>EDITING — '+esc(slug.toUpperCase())+'</span><small>signed as '+esc(MYNAME)+'</small></div>'
+    + '<div class="card-b"><div class="toolbar">'
+    + '<button data-t="b"><b>B</b></button><button data-t="i"><i>i</i></button><button data-t="h">H</button>'
+    + '<button data-t="ul">• list</button><button data-t="link">link</button><button data-t="img">photo</button>'
+    + '<button data-t="prev" style="margin-left:auto">preview ⇄</button></div>'
+    + '<textarea class="edbox" id="edBody">'+esc(body)+'</textarea>'
+    + '<div id="edPrev" class="hidden" style="margin-top:8px;border:2px solid #111;background:#fff;padding:10px"></div>'
+    + '<input type="text" id="edSummary" placeholder="edit summary — what did you change? (kept in history)" maxlength="120" style="width:100%;padding:8px;border:2px solid #111;font-family:var(--font-mono);font-size:12px;margin-top:6px">'
+    + '<div style="margin-top:6px"><button class="bigbtn" id="edSave" style="border:2px solid #111">Save page</button> <button class="bigbtn dark" id="edCancel">Cancel</button></div>'
+    + '<div class="mono" style="font-size:10px;color:var(--muted);margin-top:6px">Blank line = paragraph. <code># Heading</code> <code>**bold**</code> <code>*italic*</code> <code>- list</code> <code>[text](https://…)</code> <code>![photo](https://…)</code></div>'
+    + '</div></div>';
+}
+function pageHistHTML(slug){
+  const revs = (REVS.pages[slug] || []).slice().reverse();
+  let h = "";
+  if (HISTVIEW && HISTVIEW.kind === "page" && HISTVIEW.slug === slug){
+    const all = REVS.pages[slug] || [];
+    const r = all[HISTVIEW.idx];
+    if (!r) return '<div class="card"><div class="card-b">Revision not found.</div></div>';
+    h += '<div class="revbanner">OLD VERSION — '+fmtT(r.t)+' by <b>'+esc(r.by)+'</b>'+(r.summary?' — “'+esc(r.summary)+'”':"")
+      + '<div style="margin-top:6px"><button class="bigbtn" id="histRevert">Revert to this</button> <button class="bigbtn dark" id="histBack">Back to history</button></div></div>'
+      + '<div class="card"><div class="card-b"><div class="body-html">'+renderBody(r.body)+'</div></div></div>';
+    return h;
+  }
+  h += '<div class="card"><div class="card-h"><span>HISTORY</span><small>'+revs.length+' revisions</small></div><div class="card-b">';
+  if (!revs.length) h += '<div class="mono" style="font-size:11px">No revisions yet — the chronicle begins with the first save.</div>';
+  else{
+    h += '<div class="table-wrap"><table><thead><tr><th>WHEN</th><th>BY</th><th>SUMMARY</th><th></th></tr></thead><tbody>';
+    revs.forEach((r,i)=>{
+      const idx = (REVS.pages[slug] || []).length - 1 - i;
+      h += '<tr><td>'+fmtT(r.t)+'</td><td><b>'+esc(r.by)+'</b></td><td>'+esc(r.summary || "—")+'</td>'
+        + '<td><button data-v="'+idx+'">view</button>'+(UNSEALED ?' <button data-r="'+idx+'">revert</button>':"")+'</td></tr>';
+    });
+    h += '</tbody></table></div>';
+    if (!UNSEALED) h += '<div class="mono" style="font-size:10px;color:var(--muted);margin-top:6px">Unlock to revert.</div>';
+  }
+  return h + '</div></div>';
+}
+function rollHistHTML(){
+  const revs = REVS.roll.slice().reverse();
+  let h = "";
+  if (HISTVIEW && HISTVIEW.kind === "roll"){
+    const r = REVS.roll[HISTVIEW.idx];
+    if (!r) return '<div class="card"><div class="card-b">Revision not found.</div></div>';
+    h += '<div class="revbanner">OLD ROLL — '+fmtT(r.t)+' by <b>'+esc(r.by)+'</b>'+(r.summary?' — “'+esc(r.summary)+'”':"")+' (photos are carried over on revert)'
+      + '<div style="margin-top:6px"><button class="bigbtn" id="histRevert">Revert to this</button> <button class="bigbtn dark" id="histBack">Back to history</button></div></div>'
+      + '<div class="table-wrap"><table><thead><tr><th>CATEGORY</th><th>POST</th><th>HOLDER</th><th>STANDING</th></tr></thead><tbody>'
+      + (r.leaders||[]).map(l=>'<tr><td>'+esc(l.group||"")+'</td><td><b>'+esc(l.post||"")+'</b></td><td>'+esc(l.name||"")+'</td><td>'+esc(l.status||"")+'</td></tr>').join("")
+      + '</tbody></table></div>';
+    return h;
+  }
+  h += '<div class="card"><div class="card-h"><span>ROLL HISTORY</span><small>'+revs.length+' revisions</small></div><div class="card-b">';
+  if (!revs.length) h += '<div class="mono" style="font-size:11px">No revisions yet.</div>';
+  else{
+    h += '<div class="table-wrap"><table><thead><tr><th>WHEN</th><th>BY</th><th>SUMMARY</th><th></th></tr></thead><tbody>';
+    revs.forEach((r,i)=>{
+      const idx = REVS.roll.length - 1 - i;
+      h += '<tr><td>'+fmtT(r.t)+'</td><td><b>'+esc(r.by)+'</b></td><td>'+esc(r.summary || "—")+'</td>'
+        + '<td><button data-v="'+idx+'">view</button>'+(UNSEALED ?' <button data-r="'+idx+'">revert</button>':"")+'</td></tr>';
+    });
+    h += '</tbody></table></div>';
+    if (!UNSEALED) h += '<div class="mono" style="font-size:10px;color:var(--muted);margin-top:6px">Unlock to revert.</div>';
+  }
+  return h + '</div></div>';
+}
+function viewOverview(){
+  const s = CONTENT.settings;
+  const leaders = CONTENT.leaders.filter(l=>l.status==="LEADER");
+  return '<div class="hero"><div class="hero-main"><div class="kicker">Official record — '+esc(s.updated || "")+'</div>'
+    + '<h2>THE UNION STANDS</h2><p class="body-html">'+esc(s.motto||"")+'</p>'
+    + '<div class="grid grid-3" style="margin-top:10px">'
+    + '<div class="stat"><b>IN COMMAND</b><strong>'+leaders.length+'</strong><span>marked LEADER</span></div>'
+    + '<div class="stat"><b>OFFICE-HOLDERS</b><strong>'+CONTENT.leaders.length+'</strong><span>on the roll</span></div>'
+    + '<div class="stat"><b>PAGES</b><strong>'+CONTENT.pages.length+'</strong><span>committee record</span></div></div>'
+    + '<div><a class="bigbtn" href="'+esc(s.invite)+'" target="_blank" rel="noopener">Join the Union →</a>'
+    + '<a class="bigbtn dark" href="'+esc(s.otherUrl)+'" target="_blank" rel="noopener">'+esc(s.otherLabel)+'</a></div></div>'
+    + '<div class="hero-side"><div style="font:700 10px var(--font-mono);letter-spacing:.12em">★ IN COMMAND NOW</div>'
+    + '<div style="margin-top:8px;line-height:1.7">'+(leaders.length?leaders.map(l=>"<b>"+esc(l.name)+"</b> — "+esc(l.post)).join("<br>"):"Roll being written…")+'</div>'
+    + '<div style="margin-top:10px;border-top:1px solid #f5e6a3;padding-top:8px">Full roll on the <b>Leadership</b> page. History of the Union under <b>History</b>.</div></div></div>';
 }
 function badge(st){
   if (st === "LEADER") return '<span class="badge b-red">LEADER</span>';
@@ -401,12 +520,19 @@ function leaderCard(l){
     + (l.rank?'<div class="rank">'+esc(l.rank)+'</div>':"")
     + (l.bio?'<p>'+esc(l.bio)+'</p>':"")+'</div></div>';
 }
-function viewLeaders(){
-  const order = { LEADER:0, OFFICIAL:1, VETERAN:2 };
+function catOrder(){
   const cats = (CONTENT.categories && CONTENT.categories.length ? CONTENT.categories.slice() : ["Leadership"]);
   CONTENT.leaders.forEach(l=>{ const g = l.group || "Leadership"; if(!cats.includes(g)) cats.push(g); });
-  let html = '<div class="kicker">Who commands what — right now</div><h2>CURRENT LEADERSHIP</h2>';
-  cats.forEach(cat=>{
+  return cats;
+}
+function viewLeaders(){
+  const order = { LEADER:0, OFFICIAL:1, VETERAN:2 };
+  let html = '<div class="kicker">Who commands what — right now</div><h2>CURRENT LEADERSHIP</h2>'
+    + '<div class="wikitabs"><button data-m="read" class="'+(MODE==="read"&&!HISTVIEW?"on":"")+'">Read</button>'
+    + '<button data-m="editroll" class="">Edit roll</button>'
+    + '<button data-m="hist" class="'+((MODE==="hist"||HISTVIEW)?"on":"")+'">History</button></div>';
+  if (MODE === "hist" || HISTVIEW){ html += rollHistHTML(); return html; }
+  catOrder().forEach(cat=>{
     const ls = CONTENT.leaders.filter(l=>(l.group||"Leadership")===cat)
       .sort((a,b)=>(order[a.status]??9)-(order[b.status]??9));
     if(!ls.length) return;
@@ -415,28 +541,171 @@ function viewLeaders(){
   });
   return html;
 }
+function viewStructure(){
+  const order = { LEADER:0, OFFICIAL:1, VETERAN:2 };
+  let html = '<div class="kicker">How the Union is organised — live from the roll</div><h2>STRUCTURE</h2>'
+    + '<div class="wikitabs"><button data-m="read" class="'+(MODE==="read"&&!HISTVIEW?"on":"")+'">Read</button>'
+    + '<button data-m="hist" class="'+((MODE==="hist"||HISTVIEW)?"on":"")+'">History</button></div>';
+  if (MODE === "hist" || HISTVIEW){ html += rollHistHTML(); return html; }
+  catOrder().forEach(cat=>{
+    const ls = CONTENT.leaders.filter(l=>(l.group||"Leadership")===cat)
+      .sort((a,b)=>(order[a.status]??9)-(order[b.status]??9));
+    if(!ls.length) return;
+    html += '<div class="card" style="margin-top:10px"><div class="card-h"><span>'+esc(cat.toUpperCase())+'</span><small>'+ls.length+' post'+(ls.length===1?"":"s")+'</small></div>'
+      + '<div class="card-b"><div class="table-wrap"><table><thead><tr><th>POST</th><th>HOLDER</th><th>STANDING</th></tr></thead><tbody>'
+      + ls.map(l=>'<tr><td><b>'+esc(l.post||"—")+'</b></td><td>'+esc(l.name||"—")+'</td><td>'+badge(l.status)+'</td></tr>').join("")
+      + '</tbody></table></div></div></div>';
+  });
+  return html;
+}
+function viewChanges(){
+  const items = [];
+  Object.keys(REVS.pages || {}).forEach(slug=>{
+    (REVS.pages[slug] || []).forEach((r,idx)=>items.push({ t:r.t, by:r.by, summary:r.summary, what:"Page: "+slug, kind:"page", slug:slug, idx:idx }));
+  });
+  (REVS.roll || []).forEach((r,idx)=>items.push({ t:r.t, by:r.by, summary:r.summary, what:"Leadership roll", kind:"roll", idx:idx }));
+  items.sort((a,b)=>String(b.t).localeCompare(String(a.t)));
+  const top = items.slice(0,30);
+  let html = '<div class="kicker">Every edit, newest first</div><h2>RECENT CHANGES</h2>';
+  html += '<div class="card" style="margin-top:10px"><div class="card-h"><span>CHRONICLE</span><small>'+items.length+' recorded</small></div><div class="card-b">';
+  if (!top.length) html += '<div class="mono" style="font-size:11px">No changes recorded yet — the chronicle begins with the first save.</div>';
+  else{
+    html += '<div class="table-wrap"><table><thead><tr><th>WHEN</th><th>WHAT</th><th>BY</th><th>SUMMARY</th><th></th></tr></thead><tbody>';
+    top.forEach(it=>{
+      html += '<tr><td>'+fmtT(it.t)+'</td><td><b>'+esc(it.what)+'</b></td><td>'+esc(it.by)+'</td><td>'+esc(it.summary || "—")+'</td>'
+        + '<td><button data-cg="'+it.kind+":"+ (it.slug || "roll") +":"+it.idx+'">view</button></td></tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+  return html + '</div></div>';
+}
 
-/* admin */
-function say(m){ $("mMsg").textContent = m || ""; }
-function openMenu(){ if(UNSEALED) showAdmin(); $("menu").classList.add("show"); }
+/* ---------- view wiring (after each render) ---------- */
+function wireView(){
+  document.querySelectorAll(".wikitabs button").forEach(b=>b.onclick=()=>{
+    const m = b.dataset.m;
+    if (m === "editroll"){
+      if (!UNSEALED){ needUnlock(); return; }
+      openMenu("leaders"); return;
+    }
+    if (m === "edit" && !UNSEALED){ needUnlock(); return; }
+    if (m === "edit" && CUR){
+      const p = CONTENT.pages.find(p=>p.slug===CUR);
+      ED_BASE = { slug:CUR, body:p ? p.body : "" };
+    }
+    MODE = m; HISTVIEW = null; renderAll(); window.scrollTo({top:0,behavior:"smooth"});
+  });
+  const ta = $("edBody");
+  if (ta){
+    document.querySelectorAll(".toolbar button").forEach(b=>b.onclick=()=>{
+      const k = b.dataset.t;
+      if (k === "b") tbWrap(ta, "**", "**", "bold");
+      else if (k === "i") tbWrap(ta, "*", "*", "italic");
+      else if (k === "h") tbWrap(ta, "# ", "", "Heading");
+      else if (k === "ul") tbWrap(ta, "- ", "", "list item");
+      else if (k === "link") tbWrap(ta, "[", "](https://…)", "text");
+      else if (k === "img") tbWrap(ta, "![photo](", ")", "https://…");
+      else if (k === "prev"){ const pv = $("edPrev"); pv.classList.toggle("hidden"); pv.innerHTML = '<div class="body-html">'+renderBody(ta.value)+'</div>'; }
+    });
+    ta.oninput = ()=>{ const pv = $("edPrev"); if (pv && !pv.classList.contains("hidden")) pv.innerHTML = '<div class="body-html">'+renderBody(ta.value)+'</div>'; };
+    $("edCancel").onclick = ()=>go(CUR);
+    $("edSave").onclick = ()=>savePageEdit(CUR);
+  }
+  document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{
+    HISTVIEW = { kind:"page", slug:CUR, idx:+b.dataset.v }; MODE = "hist"; renderAll(); window.scrollTo({top:0,behavior:"smooth"});
+  });
+  document.querySelectorAll("button[data-r]").forEach(b=>b.onclick=()=>{
+    if (!UNSEALED){ needUnlock(); return; }
+    if (CUR === "leadership" || CUR === "structure") revertRoll(+b.dataset.r);
+    else revertPage(CUR, +b.dataset.r);
+  });
+  const hr = $("histRevert");
+  if (hr) hr.onclick = ()=>{
+    if (!UNSEALED){ needUnlock(); return; }
+    if (HISTVIEW.kind === "roll") revertRoll(HISTVIEW.idx);
+    else revertPage(HISTVIEW.slug, HISTVIEW.idx);
+  };
+  const hb = $("histBack");
+  if (hb) hb.onclick = ()=>{ HISTVIEW = null; MODE = "hist"; renderAll(); };
+  document.querySelectorAll("button[data-cg]").forEach(b=>b.onclick=()=>{
+    const parts = b.dataset.cg.split(":");
+    if (parts[0] === "roll"){ CUR = "leadership"; HISTVIEW = { kind:"roll", idx:+parts[2] }; }
+    else { CUR = parts[1]; HISTVIEW = { kind:"page", slug:parts[1], idx:+parts[2] }; }
+    MODE = "hist"; renderAll(); window.scrollTo({top:0,behavior:"smooth"});
+  });
+}
+function tbWrap(ta, before, after, placeholder){
+  const s = ta.selectionStart ?? ta.value.length, e = ta.selectionEnd ?? s;
+  const sel = ta.value.slice(s,e) || placeholder || "";
+  ta.value = ta.value.slice(0,s) + before + sel + after + ta.value.slice(e);
+  ta.focus();
+  const pos = s + before.length + sel.length;
+  try{ ta.setSelectionRange(pos, pos); }catch(err){}
+  const pv = $("edPrev");
+  if (pv && !pv.classList.contains("hidden")) pv.innerHTML = '<div class="body-html">'+renderBody(ta.value)+'</div>';
+}
+async function savePageEdit(slug){
+  const p = CONTENT.pages.find(p=>p.slug===slug);
+  if (!p) return;
+  const body = $("edBody").value;
+  const summary = $("edSummary").value.trim();
+  if (ED_BASE && p.body !== ED_BASE.body){
+    if (!confirm("EDIT CONFLICT — this page changed since you opened the editor. Overwrite with your version? (Cancel keeps the editor open.)")) return;
+  }
+  p.body = body;
+  pushPageRev(slug, body, summary);
+  CONTENT.settings.updated = new Date().toISOString().slice(0,10);
+  if (await saveDB()){ go(slug); say("Saved — live for everyone."); }
+}
+async function revertPage(slug, idx){
+  const revs = REVS.pages[slug] || [];
+  const r = revs[idx];
+  if (!r) return;
+  const p = CONTENT.pages.find(p=>p.slug===slug);
+  if (!p) return;
+  if (!confirm("Revert “"+p.title+"” to the version of "+fmtT(r.t)+" by "+r.by+"?")) return;
+  p.body = r.body;
+  pushPageRev(slug, r.body, "Revert to " + fmtT(r.t) + " (" + r.by + ")");
+  CONTENT.settings.updated = new Date().toISOString().slice(0,10);
+  if (await saveDB()){ HISTVIEW = null; MODE = "hist"; renderAll(); say("Reverted."); }
+}
+async function revertRoll(idx){
+  const r = REVS.roll[idx];
+  if (!r) return;
+  if (!confirm("Revert the roll to the version of "+fmtT(r.t)+" by "+r.by+"? (Photos are carried over.)")) return;
+  const photoById = {};
+  CONTENT.leaders.forEach(l=>{ photoById[l.id] = l.img; });
+  CONTENT.leaders = (r.leaders || []).map(l=>Object.assign({}, l, { img:photoById[l.id] || "" }));
+  CONTENT.categories = (r.categories || []).slice();
+  pushRollRev("Revert to " + fmtT(r.t) + " (" + r.by + ")");
+  CONTENT.settings.updated = new Date().toISOString().slice(0,10);
+  if (await saveDB()){ HISTVIEW = null; MODE = "hist"; renderAll(); refreshAdmin(); say("Roll reverted."); }
+}
+
+/* ---------- admin menu ---------- */
+function say(m){ const el = $("mMsg"); if (el) el.textContent = m || ""; }
+function openMenu(tab){
+  if (UNSEALED) showAdmin(tab);
+  $("menu").classList.add("show");
+}
 function closeMenu(){ $("menu").classList.remove("show"); }
-$("dot").onclick = openMenu;
+$("dot").onclick = ()=>openMenu();
 $("mClose").onclick = closeMenu;
 $("menu").addEventListener("click", e=>{ if(e.target.id==="menu") closeMenu(); });
-
 $("mUnlock").onclick = async ()=>{
   const c = $("mCode").value;
   if(!c.trim()){ say("Type the code first."); return; }
   say("Checking…");
   const h = await sha256hex(SALT + c.trim());
-  let ok = h.length === CODE_HASH.length;
-  let d = 0;
+  let ok = h.length === CODE_HASH.length, d = 0;
   for (let i=0;i<h.length;i++) d |= (h.charCodeAt(i) ^ CODE_HASH.charCodeAt(i));
   if (ok && d === 0){
     UNSEALED = true;
     try{ sessionStorage.setItem("ussr_unsealed","1"); }catch(e){}
+    const nm = $("mName").value.trim();
+    if (nm){ MYNAME = nm.slice(0,40); try{ localStorage.setItem(LS_NAME, MYNAME); }catch(e){} }
     $("mCode").value = "";
-    showAdmin(); say("Unlocked.");
+    showAdmin(); say("Unlocked — signed as " + MYNAME + ".");
   } else say("Wrong code.");
   refreshLock();
 };
@@ -446,24 +715,29 @@ $("mLock").onclick = ()=>{
   $("adminSec").classList.add("hidden"); $("lockSec").classList.remove("hidden");
   refreshLock(); say("Locked.");
 };
-function refreshLock(){ $("mStatus").textContent = UNSEALED ? "unlocked" : "locked"; }
-function showAdmin(){
+function refreshLock(){
+  $("mStatus").textContent = UNSEALED ? ("unlocked — signed as " + MYNAME) : "locked";
+  const nm = $("mName");
+  if (nm && document.activeElement !== nm) nm.value = (MYNAME === "Anonymous" ? "" : MYNAME);
+}
+function showAdmin(tab){
   $("lockSec").classList.add("hidden"); $("adminSec").classList.remove("hidden");
+  if (tab) document.querySelectorAll("[data-atab]").forEach(x=>x.classList.toggle("on", x.dataset.atab===tab));
   refreshAdmin(); refreshLock();
 }
 document.querySelectorAll("[data-atab]").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("[data-atab]").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");
-  ["pages","leaders","settings","publish","help"].forEach(t=>$("atab-"+t).classList.toggle("hidden", t!==b.dataset.atab));
+  ["pages","leaders","settings","help"].forEach(t=>$("atab-"+t).classList.toggle("hidden", t!==b.dataset.atab));
 });
 
-/* pages tab */
+/* pages tab (raw store) */
 function refreshPages(){
   const sel = $("pList");
   sel.innerHTML = "";
   CONTENT.pages.forEach(p=>{
     const o = document.createElement("option");
-    o.value = p.id; o.textContent = p.title + (fixedPages().includes(p.slug) ? " ★" : "");
+    o.value = p.id; o.textContent = p.title + (fixedPages().includes(p.slug) && p.slug !== "join" && !editableSlugs().includes(p.slug) ? " ★" : "");
     sel.appendChild(o);
   });
   const cur = CONTENT.pages[0];
@@ -488,8 +762,10 @@ $("pSave").onclick = async ()=>{
   if (lockedPages().includes(p.slug)){ say("“"+p.title+"” is automatic — edit it via Leadership / Settings."); return; }
   p.title = $("pTitle").value.trim() || p.title;
   p.body = $("pBody").value;
+  pushPageRev(p.slug, p.body, $("pSummary").value.trim());
+  $("pSummary").value = "";
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  renderAll(); refreshPages(); await publish("update page");
+  if (await saveDB()){ renderAll(); refreshPages(); say("Page saved — live for everyone."); }
 };
 $("pNew").onclick = async ()=>{
   const title = $("pTitle").value.trim();
@@ -497,20 +773,25 @@ $("pNew").onclick = async ()=>{
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || uid();
   if (fixedPages().includes(slug)){ say("That name is reserved for an automatic view."); return; }
   CONTENT.pages.push({ id: uid(), slug, title, body: $("pBody").value || "# "+title+"\n" });
+  pushPageRev(slug, $("pBody").value || "# "+title+"\n", "Page created");
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  renderAll(); refreshPages(); await publish("new page: " + title);
+  if (await saveDB()){ renderAll(); refreshPages(); say("Created: " + title); }
 };
 $("pDelete").onclick = async ()=>{
   const p = CONTENT.pages.find(p=>p.id===$("pList").value);
   if (!p) return;
-  if (fixedPages().includes(p.slug)){ say("Overview / Leadership / Join cannot be deleted."); return; }
-  if (!confirm("Delete page “"+p.title+"”?")) return;
+  if (fixedPages().includes(p.slug)){ say("Automatic views cannot be deleted."); return; }
+  if (!confirm("Delete page “"+p.title+"”? Its history stays in the database.")) return;
   CONTENT.pages = CONTENT.pages.filter(x=>x.id!==p.id);
-  renderAll(); refreshPages(); await publish("delete page");
+  CONTENT.settings.updated = new Date().toISOString().slice(0,10);
+  if (await saveDB()){ renderAll(); refreshPages(); say("Deleted."); }
 };
 
 /* leaders tab */
+let ROLL_BASE = "";
+function snapRoll(){ ROLL_BASE = JSON.stringify({ l:CONTENT.leaders, c:CONTENT.categories }); }
 function refreshLeaders(){
+  snapRoll();
   const w = $("lList");
   w.innerHTML = "";
   CONTENT.leaders.forEach((l,idx)=>{
@@ -527,7 +808,7 @@ function refreshLeaders(){
       + '<input type="text" data-f="postRu" placeholder="russian title (optional)" value="'+esc(l.postRu||"")+'"></div>'
       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'
       + '<select data-f="group">' + CONTENT.categories.map(c=>'<option value="'+esc(c)+'"'+(l.group===c?" selected":"")+'>'+esc(c)+'</option>').join("") + '</select>'
-      + '<input type="text" data-f="rank" placeholder="rank — ★ ★ ★" value="'+esc(l.rank||"")+'">'
+      + '<input type="text" data-f="rank" placeholder="rank" value="'+esc(l.rank||"")+'">'
       + '<select data-f="status"><option'+(l.status==="LEADER"?" selected":"")+'>LEADER</option><option'+(l.status==="OFFICIAL"?" selected":"")+'>OFFICIAL</option><option'+(l.status==="VETERAN"?" selected":"")+'>VETERAN</option></select></div>'
       + '<textarea data-f="bio" style="min-height:60px" placeholder="short bio">'+esc(l.bio||"")+'</textarea>'
       + '<input type="text" data-f="img" placeholder="photo link https://… (or upload below)">'
@@ -540,7 +821,7 @@ function refreshLeaders(){
       if (b.dataset.a==="dn"){ CONTENT.leaders.splice(idx,1); CONTENT.leaders.splice(idx+1,0,l); }
       if (b.dataset.a==="up2"){ await uploadPhoto(d, l); return; }
       CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-      renderAll(); refreshLeaders(); await publish("update leadership");
+      if (await saveRoll("Quick edit")){ renderAll(); refreshLeaders(); }
     });
     d.querySelectorAll("[data-f]").forEach(inp=>inp.onchange=()=>collectLeader(d,l));
     w.appendChild(d);
@@ -550,16 +831,18 @@ function collectLeader(d, l){
   l.name = d.querySelector('[data-f="name"]').value;
   l.post = d.querySelector('[data-f="post"]').value;
   l.postRu = d.querySelector('[data-f="postRu"]').value;
-  l.rank = d.querySelector('[data-f="rank"]').value;
   l.group = d.querySelector('[data-f="group"]').value;
+  l.rank = d.querySelector('[data-f="rank"]').value;
   l.status = d.querySelector('[data-f="status"]').value;
   l.bio = d.querySelector('[data-f="bio"]').value;
   l.img = d.querySelector('[data-f="img"]').value.trim();
 }
+async function saveRoll(summary){
+  pushRollRev(summary);
+  CONTENT.settings.updated = new Date().toISOString().slice(0,10);
+  return await saveDB();
+}
 function fileToPhoto(file){
-  /* GIFs pass through untouched so they keep moving (under 3 MB).
-     Stills are shrunk in-browser and stored as text in the database —
-     no Storage bucket, no CORS, works from any host. */
   if ((file.type || "").toLowerCase() === "image/gif"){
     return new Promise((resolve, reject)=>{
       if (file.size > 3 * 1024 * 1024){ reject(new Error("gif too big")); return; }
@@ -596,30 +879,21 @@ async function uploadPhoto(d, l){
     l.img = await fileToPhoto(f);
     d.querySelector('[data-f="img"]').value = l.img;
     CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-    renderAll(); refreshLeaders(); await publish("update photo");
+    if (await saveRoll("Photo update")){ renderAll(); refreshLeaders(); say("Photo saved — live for everyone."); }
   }catch(e){ say("That file is not readable (GIFs must be under 3 MB)."); }
 }
 $("lAdd").onclick = ()=>{ CONTENT.leaders.push({ id: uid(), name:"New comrade", post:"NEW POST", postRu:"", rank:"★", bio:"", img:"", status:"OFFICIAL", group:(CONTENT.categories.includes("Leadership")?"Leadership":CONTENT.categories[0]) }); refreshLeaders(); say("Added — fill the fields, then save leadership."); };
 $("lSave").onclick = async ()=>{
+  const now = JSON.stringify({ l:CONTENT.leaders, c:CONTENT.categories });
+  if (ROLL_BASE && ROLL_BASE !== now){
+    /* someone else saved the roll while this editor was open */
+    if (!confirm("EDIT CONFLICT — the roll changed since you opened it. Overwrite with your version?")){ refreshLeaders(); return; }
+  }
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  renderAll(); await publish("update leadership");
+  if (await saveRoll($("lSummary").value.trim())){ $("lSummary").value = ""; renderAll(); refreshLeaders(); say("Leadership saved — live for everyone."); }
 };
 
-/* settings tab */
-function refreshSettings(){
-  const s = CONTENT.settings;
-  $("sMotto").value = s.motto || ""; $("sTicker").value = s.ticker || "";
-  $("sInvite").value = s.invite || ""; $("sOther").value = s.otherUrl || "";
-  $("sOtherLabel").value = s.otherLabel || "";
-}
-$("sSave").onclick = async ()=>{
-  Object.assign(CONTENT.settings, {
-    motto:$("sMotto").value, ticker:$("sTicker").value, invite:$("sInvite").value,
-    otherUrl:$("sOther").value, otherLabel:$("sOtherLabel").value,
-    updated:new Date().toISOString().slice(0,10)
-  });
-  renderAll(); await publish("update settings");
-};
+/* categories */
 function refreshCats(){
   const w = $("cList"); w.innerHTML = "";
   CONTENT.categories.forEach((c,idx)=>{
@@ -640,7 +914,7 @@ function refreshCats(){
       if(b.dataset.a==="up" && idx>0){ CONTENT.categories.splice(idx,1); CONTENT.categories.splice(idx-1,0,name); }
       if(b.dataset.a==="dn"){ CONTENT.categories.splice(idx,1); CONTENT.categories.splice(idx+1,0,name); }
       CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-      renderAll(); refreshAdmin(); await publish("update categories");
+      if (await saveRoll("Category change")){ renderAll(); refreshAdmin(); }
     });
     w.appendChild(d);
   });
@@ -651,17 +925,30 @@ $("cAdd").onclick = async ()=>{
   if(!CONTENT.categories.includes(v)) CONTENT.categories.push(v);
   $("cNew").value = "";
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  renderAll(); refreshAdmin(); await publish("update categories");
+  if (await saveRoll("Category added")){ renderAll(); refreshAdmin(); }
 };
 $("cSave").onclick = async ()=>{
   document.querySelectorAll("#cList input").forEach((inp,i)=>{ CONTENT.categories[i] = inp.value.trim() || CONTENT.categories[i]; });
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
-  renderAll(); refreshAdmin(); await publish("update categories");
+  if (await saveRoll("Category order")){ renderAll(); refreshAdmin(); }
 };
-function refreshToken(){ const t = ghToken(); const inp = $("ghTok"); if (inp && document.activeElement !== inp) inp.value = t; $("ghStatus").textContent = t ? "token remembered for this tab" : "no token in this tab"; }
-$("ghSave").onclick = ()=>{ const v = $("ghTok").value.trim(); try{ if (v) sessionStorage.setItem(LS_TOKEN, v); else sessionStorage.removeItem(LS_TOKEN); }catch(e){} refreshToken(); say(v ? "Token remembered for this tab." : "Cleared."); };
-$("ghForget").onclick = ()=>{ try{ sessionStorage.removeItem(LS_TOKEN); }catch(e){} refreshToken(); say("Token forgotten."); };
-function refreshAdmin(){ refreshPages(); refreshCats(); refreshLeaders(); refreshSettings(); refreshToken(); }
+
+/* settings tab */
+function refreshSettings(){
+  const s = CONTENT.settings;
+  $("sMotto").value = s.motto || ""; $("sTicker").value = s.ticker || "";
+  $("sInvite").value = s.invite || ""; $("sOther").value = s.otherUrl || "";
+  $("sOtherLabel").value = s.otherLabel || "";
+}
+$("sSave").onclick = async ()=>{
+  Object.assign(CONTENT.settings, {
+    motto:$("sMotto").value, ticker:$("sTicker").value, invite:$("sInvite").value,
+    otherUrl:$("sOther").value, otherLabel:$("sOtherLabel").value,
+    updated:new Date().toISOString().slice(0,10)
+  });
+  if (await saveDB()){ renderAll(); say("Settings saved — live for everyone."); }
+};
+function refreshAdmin(){ refreshPages(); refreshCats(); refreshLeaders(); refreshSettings(); }
 
 /* clock + init */
 function tick(){
@@ -675,9 +962,10 @@ function tick(){
   loadLocal();
   try{
     const r = await fetch("./data.json",{cache:"no-store"});
-    if (r.ok){ const j = await r.json(); if (j && (j.pages||j.leaders)) CONTENT = normalize(j); }
+    if (r.ok){ const j = await r.json(); if (j && (j.pages||j.leaders)) CONTENT = normalizeContent(j); }
   }catch(e){}
   renderAll();
+  initFirebase();
   refreshLock();
   if (UNSEALED) showAdmin();
 })();
