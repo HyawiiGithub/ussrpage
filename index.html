@@ -104,6 +104,10 @@ tbody tr:nth-child(even) td{background:var(--paper2)}
 .toolbar button:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #111}
 .edbox{width:100%;min-height:220px;padding:10px;border:2px solid #111;font-family:var(--font-mono);font-size:12px;background:#fff;color:#111}
 .revbanner{border:2px dashed #111;background:#fff;padding:8px;font:600 11px var(--font-mono);margin-bottom:10px}
+.cedit input,.cedit select,.cedit textarea{width:100%;padding:6px;border:2px solid #111;font-family:var(--font-mono);font-size:11px;margin:3px 0;background:#fff;color:#111}
+.cedit textarea{min-height:56px}
+.cedit button{font-family:var(--font-mono);font-size:10px;font-weight:700;padding:5px 10px;border:2px solid #111;background:#fff;cursor:pointer;margin:4px 4px 0 0;box-shadow:2px 2px 0 #111;text-transform:uppercase}
+.cedit button.primary{background:var(--red);color:#fff}
 /* ADMIN */
 #menu{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);font-family:var(--font-mono)}
 #menu.show{display:flex}
@@ -165,7 +169,7 @@ tbody tr:nth-child(even) td{background:var(--paper2)}
       <input type="text" id="pTitle" placeholder="page title">
       <textarea id="pBody" placeholder="page text…"></textarea>
       <input type="text" id="pSummary" placeholder="edit summary — what did you change? (goes in history)" maxlength="120">
-      <div><button class="primary" id="pSave">save page</button><button id="pNew">new page</button><button id="pDelete">delete</button></div>
+      <div><button class="primary" id="pSave">save page</button><button id="pNew">new page</button><button id="pDelete">delete</button><button id="pUp">↑ move</button><button id="pDn">↓ move</button></div>
       <small>Blank line = new paragraph. <code># Heading</code>, <code>**bold**</code>, <code>*italic*</code>, <code>- list</code>, <code>[text](https://…)</code>, <code>![photo](https://…)</code>.</small>
     </div>
     <div id="atab-leaders" class="hidden">
@@ -189,7 +193,7 @@ tbody tr:nth-child(even) td{background:var(--paper2)}
       <div><button class="primary" id="sSave">save settings</button></div>
     </div>
     <div id="atab-help" class="hidden">
-      <p><b>How it works.</b> This is a wiki: every view has <b>Read / Edit / History</b> tabs. Saving writes to the Union database and appears for everyone instantly. Every edit is stamped with your signature and kept in history — open any History tab to read old versions or revert.</p>
+      <p><b>How it works.</b> This is a wiki: every view has <b>Read / Edit / History</b> tabs, all wired to one click handler that survives every re-render. Saving writes to the Union database and appears for everyone instantly.</p>
       <p style="margin-top:6px">• <b>Edit tab:</b> toolbar, live preview, summary line. If someone saved while you were writing, you get an edit-conflict warning first.<br>• <b>History tab:</b> every version with author + summary. View any old version, revert with one click.<br>• <b>Changes</b> in the top menu: the whole Union's recent edits in one feed.<br>• <b>Leadership:</b> add a photo per leader, set post + category + status. <b>LEADER</b> = currently leading, <b>OFFICIAL</b> = in office, <b>VETERAN</b> = former/honorary. Roll edits are historied too (photos are carried over on revert).<br>• <b>Categories:</b> sections top to bottom — High Command first, then the rest.<br>• <b>Photos:</b> GIFs keep moving (under 3 MB), stills are shrunk in your browser; links work too.<br>• Keep the access code secret. Anyone with it can edit EVERYTHING.</p>
     </div>
     <small id="mMsg"></small>
@@ -350,6 +354,7 @@ let CUR = "overview";
 let MODE = "read";            /* read | edit | hist */
 let HISTVIEW = null;          /* {kind:'page',slug,idx} | {kind:'roll',idx} */
 let ED_BASE = null;           /* {slug, body} captured when editor opened */
+let CARD_EDIT = null;         /* leader id with inline card editor open */
 function fixedPages(){ return ["overview","leadership","structure","join","changes"]; }
 function lockedPages(){ return ["overview","leadership","structure"]; }
 function editableSlugs(){
@@ -367,7 +372,7 @@ function allNav(){
   ];
 }
 function go(slug, mode){
-  CUR = slug; MODE = mode || "read"; HISTVIEW = null; ED_BASE = null;
+  CUR = slug; MODE = mode || "read"; HISTVIEW = null; ED_BASE = null; CARD_EDIT = null;
   renderAll(); window.scrollTo({top:0,behavior:"smooth"});
 }
 function renderAll(){
@@ -379,21 +384,20 @@ function renderAll(){
   $("genAt").textContent = "UPDATED " + (s.updated || "—");
   const nav = allNav();
   if (!nav.find(n=>n.slug===CUR)) CUR = "overview";
-  $("nav").innerHTML = nav.map(n=>'<button data-v="'+esc(n.slug)+'" class="'+(n.slug===CUR?"active":"")+'">'+esc(n.title.toUpperCase())+'</button>').join("")
+  $("nav").innerHTML = nav.map(n=>'<button data-act="nav" data-v="'+esc(n.slug)+'" class="'+(n.slug===CUR?"active":"")+'">'+esc(n.title.toUpperCase())+'</button>').join("")
     + '<a class="gold" href="'+esc(s.invite)+'" target="_blank" rel="noopener">Join the Union →</a>'
     + '<a class="redbtn" href="'+esc(s.otherUrl)+'" target="_blank" rel="noopener">'+esc(s.otherLabel)+'</a>';
-  document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.v));
+  ensureClicks();
   $("page").innerHTML = viewHTML(CUR);
-  wireView();
 }
 function wikitabs(slug, kind){
   /* kind: 'page' | 'roll' | 'none' */
   if (kind === "none") return "";
   const ed = (kind === "page") ? editableSlugs().includes(slug) : true;
   let h = '<div class="wikitabs">'
-    + '<button data-m="read" class="'+(MODE==="read"&&!HISTVIEW?"on":"")+'">Read</button>';
-  if (ed) h += '<button data-m="edit" class="'+(MODE==="edit"?"on":"")+'">Edit</button>';
-  h += '<button data-m="hist" class="'+((MODE==="hist"||HISTVIEW)?"on":"")+'">History</button></div>';
+    + '<button data-act="mode" data-m="read" class="'+(MODE==="read"&&!HISTVIEW?"on":"")+'">Read</button>';
+  if (ed) h += '<button data-act="mode" data-m="edit" class="'+(MODE==="edit"?"on":"")+'">Edit</button>';
+  h += '<button data-act="mode" data-m="hist" class="'+((MODE==="hist"||HISTVIEW)?"on":"")+'">History</button></div>';
   return h;
 }
 function needUnlock(){
@@ -428,13 +432,13 @@ function wikiPage(title, slug, body, editable){
 function editorHTML(slug, body){
   return '<div class="card"><div class="card-h"><span>EDITING — '+esc(slug.toUpperCase())+'</span><small>signed as '+esc(MYNAME)+'</small></div>'
     + '<div class="card-b"><div class="toolbar">'
-    + '<button data-t="b"><b>B</b></button><button data-t="i"><i>i</i></button><button data-t="h">H</button>'
-    + '<button data-t="ul">• list</button><button data-t="link">link</button><button data-t="img">photo</button>'
-    + '<button data-t="prev" style="margin-left:auto">preview ⇄</button></div>'
+    + '<button data-act="tool" data-t="b"><b>B</b></button><button data-act="tool" data-t="i"><i>i</i></button><button data-act="tool" data-t="h">H</button>'
+    + '<button data-act="tool" data-t="ul">• list</button><button data-act="tool" data-t="link">link</button><button data-act="tool" data-t="img">photo</button>'
+    + '<button data-act="tool" data-t="prev" style="margin-left:auto">preview ⇄</button></div>'
     + '<textarea class="edbox" id="edBody">'+esc(body)+'</textarea>'
     + '<div id="edPrev" class="hidden" style="margin-top:8px;border:2px solid #111;background:#fff;padding:10px"></div>'
     + '<input type="text" id="edSummary" placeholder="edit summary — what did you change? (kept in history)" maxlength="120" style="width:100%;padding:8px;border:2px solid #111;font-family:var(--font-mono);font-size:12px;margin-top:6px">'
-    + '<div style="margin-top:6px"><button class="bigbtn" id="edSave" style="border:2px solid #111">Save page</button> <button class="bigbtn dark" id="edCancel">Cancel</button></div>'
+    + '<div style="margin-top:6px"><button class="bigbtn" data-act="edsave" id="edSave" style="border:2px solid #111">Save page</button> <button class="bigbtn dark" data-act="edcancel" id="edCancel">Cancel</button></div>'
     + '<div class="mono" style="font-size:10px;color:var(--muted);margin-top:6px">Blank line = paragraph. <code># Heading</code> <code>**bold**</code> <code>*italic*</code> <code>- list</code> <code>[text](https://…)</code> <code>![photo](https://…)</code></div>'
     + '</div></div>';
 }
@@ -445,8 +449,8 @@ function pageHistHTML(slug){
     const all = REVS.pages[slug] || [];
     const r = all[HISTVIEW.idx];
     if (!r) return '<div class="card"><div class="card-b">Revision not found.</div></div>';
-    h += '<div class="revbanner">OLD VERSION — '+fmtT(r.t)+' by <b>'+esc(r.by)+'</b>'+(r.summary?' — “'+esc(r.summary)+'”':"")
-      + '<div style="margin-top:6px"><button class="bigbtn" id="histRevert">Revert to this</button> <button class="bigbtn dark" id="histBack">Back to history</button></div></div>'
+      h += '<div class="revbanner">OLD VERSION — '+fmtT(r.t)+' by <b>'+esc(r.by)+'</b>'+(r.summary?' — “'+esc(r.summary)+'”':"")
+      + '<div style="margin-top:6px"><button class="bigbtn" data-act="histrevert" id="histRevert">Revert to this</button> <button class="bigbtn dark" data-act="histback" id="histBack">Back to history</button></div></div>'
       + '<div class="card"><div class="card-b"><div class="body-html">'+renderBody(r.body)+'</div></div></div>';
     return h;
   }
@@ -457,7 +461,7 @@ function pageHistHTML(slug){
     revs.forEach((r,i)=>{
       const idx = (REVS.pages[slug] || []).length - 1 - i;
       h += '<tr><td>'+fmtT(r.t)+'</td><td><b>'+esc(r.by)+'</b></td><td>'+esc(r.summary || "—")+'</td>'
-        + '<td><button data-v="'+idx+'">view</button>'+(UNSEALED ?' <button data-r="'+idx+'">revert</button>':"")+'</td></tr>';
+        + '<td><button data-act="hview" data-i="'+idx+'">view</button>'+(UNSEALED ?' <button data-act="hrevert" data-i="'+idx+'">revert</button>':"")+'</td></tr>';
     });
     h += '</tbody></table></div>';
     if (!UNSEALED) h += '<div class="mono" style="font-size:10px;color:var(--muted);margin-top:6px">Unlock to revert.</div>';
@@ -471,7 +475,7 @@ function rollHistHTML(){
     const r = REVS.roll[HISTVIEW.idx];
     if (!r) return '<div class="card"><div class="card-b">Revision not found.</div></div>';
     h += '<div class="revbanner">OLD ROLL — '+fmtT(r.t)+' by <b>'+esc(r.by)+'</b>'+(r.summary?' — “'+esc(r.summary)+'”':"")+' (photos are carried over on revert)'
-      + '<div style="margin-top:6px"><button class="bigbtn" id="histRevert">Revert to this</button> <button class="bigbtn dark" id="histBack">Back to history</button></div></div>'
+      + '<div style="margin-top:6px"><button class="bigbtn" data-act="histrevert" id="histRevert">Revert to this</button> <button class="bigbtn dark" data-act="histback" id="histBack">Back to history</button></div></div>'
       + '<div class="table-wrap"><table><thead><tr><th>CATEGORY</th><th>POST</th><th>HOLDER</th><th>STANDING</th></tr></thead><tbody>'
       + (r.leaders||[]).map(l=>'<tr><td>'+esc(l.group||"")+'</td><td><b>'+esc(l.post||"")+'</b></td><td>'+esc(l.name||"")+'</td><td>'+esc(l.status||"")+'</td></tr>').join("")
       + '</tbody></table></div>';
@@ -484,7 +488,7 @@ function rollHistHTML(){
     revs.forEach((r,i)=>{
       const idx = REVS.roll.length - 1 - i;
       h += '<tr><td>'+fmtT(r.t)+'</td><td><b>'+esc(r.by)+'</b></td><td>'+esc(r.summary || "—")+'</td>'
-        + '<td><button data-v="'+idx+'">view</button>'+(UNSEALED ?' <button data-r="'+idx+'">revert</button>':"")+'</td></tr>';
+        + '<td><button data-act="rview" data-i="'+idx+'">view</button>'+(UNSEALED ?' <button data-act="rrevert" data-i="'+idx+'">revert</button>':"")+'</td></tr>';
     });
     h += '</tbody></table></div>';
     if (!UNSEALED) h += '<div class="mono" style="font-size:10px;color:var(--muted);margin-top:6px">Unlock to revert.</div>';
@@ -494,7 +498,20 @@ function rollHistHTML(){
 function viewOverview(){
   const s = CONTENT.settings;
   const leaders = CONTENT.leaders.filter(l=>l.status==="LEADER");
-  return '<div class="hero"><div class="hero-main"><div class="kicker">Official record — '+esc(s.updated || "")+'</div>'
+  let html = '<div class="kicker">Official record</div><h2>OVERVIEW</h2>'
+    + '<div class="wikitabs"><button data-act="mode" data-m="read" class="'+(MODE==="read"?"on":"")+'">Read</button>'
+    + '<button data-act="mode" data-m="edit" class="'+(MODE==="edit"?"on":"")+'">Edit</button></div>';
+  if (MODE === "edit"){
+    if (!UNSEALED){ needUnlock(); MODE = "read"; return viewOverview(); }
+    html += '<div class="card"><div class="card-h"><span>EDITING — FRONT PAGE WORDS</span><small>signed as '+esc(MYNAME)+'</small></div><div class="card-b">'
+      + '<label>Headline motto</label><input type="text" id="ovMotto" value="'+esc(s.motto||"")+'" style="width:100%;padding:8px;border:2px solid #111;font-family:var(--font-mono);font-size:12px">'
+      + '<label style="margin-top:6px">Ticker line</label><input type="text" id="ovTicker" value="'+esc(s.ticker||"")+'" style="width:100%;padding:8px;border:2px solid #111;font-family:var(--font-mono);font-size:12px">'
+      + '<div style="margin-top:6px"><button class="bigbtn" data-act="ovsave" style="border:2px solid #111">Save</button> <button class="bigbtn dark" data-act="edcancel">Cancel</button></div>'
+      + '<div class="mono" style="font-size:10px;color:var(--muted);margin-top:6px">Invite link and other-site button live in the menu → Settings.</div>'
+      + '</div></div>';
+    return html;
+  }
+  return html + '<div class="hero"><div class="hero-main"><div class="kicker">Official record — '+esc(s.updated || "")+'</div>'
     + '<h2>THE UNION STANDS</h2><p class="body-html">'+esc(s.motto||"")+'</p>'
     + '<div class="grid grid-3" style="margin-top:10px">'
     + '<div class="stat"><b>IN COMMAND</b><strong>'+leaders.length+'</strong><span>marked LEADER</span></div>'
@@ -512,9 +529,22 @@ function badge(st){
   return '<span class="badge b-good">OFFICIAL</span>';
 }
 function leaderCard(l){
+  if (CARD_EDIT === l.id){
+    const cats = (CONTENT.categories && CONTENT.categories.length ? CONTENT.categories : ["Leadership"]);
+    return '<div class="leader'+(l.status==="LEADER"?" is-leader":"")+'"><div class="lb cedit">'
+      + '<input data-cf="name:'+l.id+'" value="'+esc(l.name||"")+'" placeholder="name">'
+      + '<input data-cf="post:'+l.id+'" value="'+esc(l.post||"")+'" placeholder="POST / TITLE">'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'
+      + '<select data-cf="group:'+l.id+'">' + cats.map(c=>'<option value="'+esc(c)+'"'+(l.group===c?" selected":"")+'>'+esc(c)+'</option>').join("") + '</select>'
+      + '<select data-cf="status:'+l.id+'"><option'+(l.status==="LEADER"?" selected":"")+'>LEADER</option><option'+(l.status==="OFFICIAL"?" selected":"")+'>OFFICIAL</option><option'+(l.status==="VETERAN"?" selected":"")+'>VETERAN</option></select></div>'
+      + '<textarea data-cf="bio:'+l.id+'" placeholder="short bio">'+esc(l.bio||"")+'</textarea>'
+      + '<div><button class="primary" data-act="cardsave" data-id="'+l.id+'">Save</button><button data-act="cardcancel">Cancel</button></div>'
+      + '</div></div>';
+  }
   return '<div class="leader'+(l.status==="LEADER"?" is-leader":"")+'"><div class="ph">'
     + (l.img?'<img src="'+esc(l.img)+'" alt="'+esc(l.name)+'" loading="lazy" onerror="this.remove()">':"☭")
     + '</div><div class="lb"><span class="post">'+esc(l.post||"")+'</span> '+badge(l.status)
+    + (UNSEALED ? ' <button data-act="cardedit" data-id="'+l.id+'" style="font:700 9px var(--font-mono);border:2px solid #111;background:#fff;padding:2px 6px;cursor:pointer">EDIT</button>' : "")
     + (l.postRu?'<div class="ru">'+esc(l.postRu)+'</div>':"")
     + '<h3>'+esc(l.name||"")+'</h3>'
     + (l.rank?'<div class="rank">'+esc(l.rank)+'</div>':"")
@@ -528,9 +558,9 @@ function catOrder(){
 function viewLeaders(){
   const order = { LEADER:0, OFFICIAL:1, VETERAN:2 };
   let html = '<div class="kicker">Who commands what — right now</div><h2>CURRENT LEADERSHIP</h2>'
-    + '<div class="wikitabs"><button data-m="read" class="'+(MODE==="read"&&!HISTVIEW?"on":"")+'">Read</button>'
-    + '<button data-m="editroll" class="">Edit roll</button>'
-    + '<button data-m="hist" class="'+((MODE==="hist"||HISTVIEW)?"on":"")+'">History</button></div>';
+    + '<div class="wikitabs"><button data-act="mode" data-m="read" class="'+(MODE==="read"&&!HISTVIEW?"on":"")+'">Read</button>'
+    + '<button data-act="editroll">Edit roll</button>'
+    + '<button data-act="mode" data-m="hist" class="'+((MODE==="hist"||HISTVIEW)?"on":"")+'">History</button></div>';
   if (MODE === "hist" || HISTVIEW){ html += rollHistHTML(); return html; }
   catOrder().forEach(cat=>{
     const ls = CONTENT.leaders.filter(l=>(l.group||"Leadership")===cat)
@@ -544,8 +574,8 @@ function viewLeaders(){
 function viewStructure(){
   const order = { LEADER:0, OFFICIAL:1, VETERAN:2 };
   let html = '<div class="kicker">How the Union is organised — live from the roll</div><h2>STRUCTURE</h2>'
-    + '<div class="wikitabs"><button data-m="read" class="'+(MODE==="read"&&!HISTVIEW?"on":"")+'">Read</button>'
-    + '<button data-m="hist" class="'+((MODE==="hist"||HISTVIEW)?"on":"")+'">History</button></div>';
+    + '<div class="wikitabs"><button data-act="mode" data-m="read" class="'+(MODE==="read"&&!HISTVIEW?"on":"")+'">Read</button>'
+    + '<button data-act="mode" data-m="hist" class="'+((MODE==="hist"||HISTVIEW)?"on":"")+'">History</button></div>';
   if (MODE === "hist" || HISTVIEW){ html += rollHistHTML(); return html; }
   catOrder().forEach(cat=>{
     const ls = CONTENT.leaders.filter(l=>(l.group||"Leadership")===cat)
@@ -573,66 +603,87 @@ function viewChanges(){
     html += '<div class="table-wrap"><table><thead><tr><th>WHEN</th><th>WHAT</th><th>BY</th><th>SUMMARY</th><th></th></tr></thead><tbody>';
     top.forEach(it=>{
       html += '<tr><td>'+fmtT(it.t)+'</td><td><b>'+esc(it.what)+'</b></td><td>'+esc(it.by)+'</td><td>'+esc(it.summary || "—")+'</td>'
-        + '<td><button data-cg="'+it.kind+":"+ (it.slug || "roll") +":"+it.idx+'">view</button></td></tr>';
+        + '<td><button data-act="chg" data-cg="'+it.kind+":"+ (it.slug || "roll") +":"+it.idx+'">view</button></td></tr>';
     });
     html += '</tbody></table></div>';
   }
   return html + '</div></div>';
 }
 
-/* ---------- view wiring (after each render) ---------- */
-function wireView(){
-  document.querySelectorAll(".wikitabs button").forEach(b=>b.onclick=()=>{
-    const m = b.dataset.m;
-    if (m === "editroll"){
-      if (!UNSEALED){ needUnlock(); return; }
-      openMenu("leaders"); return;
+/* ---------- clicks: ONE delegated listener, installed once, survives every re-render ---------- */
+let CLICKS_ON = false;
+function ensureClicks(){
+  if (CLICKS_ON) return; CLICKS_ON = true;
+  document.addEventListener("click", e=>{
+    const t = (e.target && e.target.closest) ? e.target.closest("[data-act]") : null;
+    if (!t) return;
+    const a = t.dataset.act;
+    if (a === "nav"){ go(t.dataset.v); }
+    else if (a === "mode"){ modeClick(t.dataset.m); }
+    else if (a === "editroll"){ if (!UNSEALED){ needUnlock(); return; } openMenu("leaders"); }
+    else if (a === "tool"){ const ta = $("edBody"); if (ta) toolClick(ta, t.dataset.t); }
+    else if (a === "edsave"){ savePageEdit(CUR); }
+    else if (a === "edcancel"){ go(CUR); }
+    else if (a === "hview"){ HISTVIEW = { kind:"page", slug:CUR, idx:+t.dataset.i }; MODE = "hist"; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); }
+    else if (a === "hrevert"){ if (!UNSEALED){ needUnlock(); return; } revertPage(CUR, +t.dataset.i); }
+    else if (a === "rview"){ HISTVIEW = { kind:"roll", idx:+t.dataset.i }; MODE = "hist"; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); }
+    else if (a === "rrevert"){ if (!UNSEALED){ needUnlock(); return; } revertRoll(+t.dataset.i); }
+    else if (a === "histrevert"){ if (!UNSEALED){ needUnlock(); return; } if (HISTVIEW && HISTVIEW.kind === "roll") revertRoll(HISTVIEW.idx); else if (HISTVIEW) revertPage(HISTVIEW.slug, HISTVIEW.idx); }
+    else if (a === "histback"){ HISTVIEW = null; MODE = "hist"; renderAll(); }
+    else if (a === "chg"){
+      const parts = (t.dataset.cg || "").split(":");
+      if (parts[0] === "roll"){ CUR = "leadership"; HISTVIEW = { kind:"roll", idx:+parts[2] }; }
+      else { CUR = parts[1]; HISTVIEW = { kind:"page", slug:parts[1], idx:+parts[2] }; }
+      MODE = "hist"; renderAll(); window.scrollTo({top:0,behavior:"smooth"});
     }
-    if (m === "edit" && !UNSEALED){ needUnlock(); return; }
-    if (m === "edit" && CUR){
-      const p = CONTENT.pages.find(p=>p.slug===CUR);
-      ED_BASE = { slug:CUR, body:p ? p.body : "" };
-    }
-    MODE = m; HISTVIEW = null; renderAll(); window.scrollTo({top:0,behavior:"smooth"});
+    else if (a === "cardedit"){ if (!UNSEALED){ needUnlock(); return; } CARD_EDIT = t.dataset.id; renderAll(); }
+    else if (a === "cardcancel"){ CARD_EDIT = null; renderAll(); }
+    else if (a === "cardsave"){ cardSave(t.dataset.id); }
+    else if (a === "ovsave"){ overviewSave(); }
   });
-  const ta = $("edBody");
-  if (ta){
-    document.querySelectorAll(".toolbar button").forEach(b=>b.onclick=()=>{
-      const k = b.dataset.t;
-      if (k === "b") tbWrap(ta, "**", "**", "bold");
-      else if (k === "i") tbWrap(ta, "*", "*", "italic");
-      else if (k === "h") tbWrap(ta, "# ", "", "Heading");
-      else if (k === "ul") tbWrap(ta, "- ", "", "list item");
-      else if (k === "link") tbWrap(ta, "[", "](https://…)", "text");
-      else if (k === "img") tbWrap(ta, "![photo](", ")", "https://…");
-      else if (k === "prev"){ const pv = $("edPrev"); pv.classList.toggle("hidden"); pv.innerHTML = '<div class="body-html">'+renderBody(ta.value)+'</div>'; }
-    });
-    ta.oninput = ()=>{ const pv = $("edPrev"); if (pv && !pv.classList.contains("hidden")) pv.innerHTML = '<div class="body-html">'+renderBody(ta.value)+'</div>'; };
-    $("edCancel").onclick = ()=>go(CUR);
-    $("edSave").onclick = ()=>savePageEdit(CUR);
+  document.addEventListener("input", e=>{
+    if (e.target && e.target.id === "edBody"){
+      const pv = $("edPrev");
+      if (pv && !pv.classList.contains("hidden")) pv.innerHTML = '<div class="body-html">'+renderBody(e.target.value)+'</div>';
+    }
+  });
+}
+function modeClick(m){
+  if (m === "edit" && !UNSEALED){ needUnlock(); return; }
+  if (m === "edit" && CUR){
+    const p = CONTENT.pages.find(p=>p.slug===CUR);
+    ED_BASE = { slug:CUR, body:p ? p.body : "" };
   }
-  document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{
-    HISTVIEW = { kind:"page", slug:CUR, idx:+b.dataset.v }; MODE = "hist"; renderAll(); window.scrollTo({top:0,behavior:"smooth"});
-  });
-  document.querySelectorAll("button[data-r]").forEach(b=>b.onclick=()=>{
-    if (!UNSEALED){ needUnlock(); return; }
-    if (CUR === "leadership" || CUR === "structure") revertRoll(+b.dataset.r);
-    else revertPage(CUR, +b.dataset.r);
-  });
-  const hr = $("histRevert");
-  if (hr) hr.onclick = ()=>{
-    if (!UNSEALED){ needUnlock(); return; }
-    if (HISTVIEW.kind === "roll") revertRoll(HISTVIEW.idx);
-    else revertPage(HISTVIEW.slug, HISTVIEW.idx);
-  };
-  const hb = $("histBack");
-  if (hb) hb.onclick = ()=>{ HISTVIEW = null; MODE = "hist"; renderAll(); };
-  document.querySelectorAll("button[data-cg]").forEach(b=>b.onclick=()=>{
-    const parts = b.dataset.cg.split(":");
-    if (parts[0] === "roll"){ CUR = "leadership"; HISTVIEW = { kind:"roll", idx:+parts[2] }; }
-    else { CUR = parts[1]; HISTVIEW = { kind:"page", slug:parts[1], idx:+parts[2] }; }
-    MODE = "hist"; renderAll(); window.scrollTo({top:0,behavior:"smooth"});
-  });
+  MODE = m; HISTVIEW = null; renderAll(); window.scrollTo({top:0,behavior:"smooth"});
+}
+function toolClick(ta, k){
+  if (k === "b") tbWrap(ta, "**", "**", "bold");
+  else if (k === "i") tbWrap(ta, "*", "*", "italic");
+  else if (k === "h") tbWrap(ta, "# ", "", "Heading");
+  else if (k === "ul") tbWrap(ta, "- ", "", "list item");
+  else if (k === "link") tbWrap(ta, "[", "](https://…)", "text");
+  else if (k === "img") tbWrap(ta, "![photo](", ")", "https://…");
+  else if (k === "prev"){ const pv = $("edPrev"); pv.classList.toggle("hidden"); pv.innerHTML = '<div class="body-html">'+renderBody(ta.value)+'</div>'; }
+}
+async function cardSave(id){
+  const l = CONTENT.leaders.find(x=>x.id===id);
+  if (!l) return;
+  const g = f => { const el = document.querySelector('[data-cf="'+f+":"+id+'"]'); return el ? el.value : ""; };
+  if (g("name")) l.name = g("name");
+  if (g("post")) l.post = g("post");
+  l.status = g("status") || l.status;
+  l.group = g("group") || l.group;
+  l.bio = g("bio");
+  CARD_EDIT = null;
+  CONTENT.settings.updated = new Date().toISOString().slice(0,10);
+  if (await saveRoll("Quick edit: " + l.name)){ renderAll(); if (UNSEALED) refreshAdmin(); say("Saved — live for everyone."); }
+}
+async function overviewSave(){
+  const m = $("ovMotto"), t = $("ovTicker");
+  if (m) CONTENT.settings.motto = m.value;
+  if (t) CONTENT.settings.ticker = t.value;
+  CONTENT.settings.updated = new Date().toISOString().slice(0,10);
+  if (await saveDB()){ MODE = "read"; renderAll(); }
 }
 function tbWrap(ta, before, after, placeholder){
   const s = ta.selectionStart ?? ta.value.length, e = ta.selectionEnd ?? s;
@@ -786,6 +837,19 @@ $("pDelete").onclick = async ()=>{
   CONTENT.settings.updated = new Date().toISOString().slice(0,10);
   if (await saveDB()){ renderAll(); refreshPages(); say("Deleted."); }
 };
+async function movePage(dir){
+  const id = $("pList").value;
+  const i = CONTENT.pages.findIndex(p=>p.id===id);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= CONTENT.pages.length) return;
+  const tmp = CONTENT.pages[i]; CONTENT.pages[i] = CONTENT.pages[j]; CONTENT.pages[j] = tmp;
+  const moved = CONTENT.pages[j];
+  pushPageRev(moved.slug, moved.body, "Moved page order");
+  CONTENT.settings.updated = new Date().toISOString().slice(0,10);
+  if (await saveDB()){ renderAll(); refreshPages(); say("Moved: " + moved.title); }
+}
+$("pUp").onclick = ()=>movePage(-1);
+$("pDn").onclick = ()=>movePage(1);
 
 /* leaders tab */
 let ROLL_BASE = "";
